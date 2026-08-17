@@ -21,6 +21,7 @@ the canonical list. Update it when a language lands or gains a layer.
 | Chinese (Traditional) | `zh-TW` | ✅ | ✅ | ✅ (shares the Mandarin voice) | ✅ |
 | Japanese | `ja` | ✅ | ✅ | ❌ system TTS* | ✅ |
 | Hebrew | `he` | ✅ (first RTL locale) | ✅ | ❌ system TTS* | ✅ |
+| Hungarian (NA-VIGATOR fork) | `hu` | 🟡 partial (core screens only) | ❌ not started | ❌ no Piper hu_HU voice yet | ❓ untested |
 
 \* Piper/espeak-ng has no Japanese or Hebrew phonemizer, so there's no downloadable Vela
 voice for those two. Spoken directions route to the phone's own system TTS in that
