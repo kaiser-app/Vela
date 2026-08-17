@@ -34,7 +34,13 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "app.vela"
+        // NA-VIGATOR: saját applicationId. A Kotlin "namespace" (app.vela) egyelőre
+        // változatlan marad — ez csak a belső csomagszerkezetet érinti, amit a
+        // felhasználó soha nem lát, és az átnevezése minden forrásfájlt érintő,
+        // külön elvégzendő refaktor lenne. Az applicationId viszont pont az, ami a
+        // Play Store-on / a telefon beállításaiban az app egyedi azonosítójaként
+        // megjelenik — ez a lényegi lépés a rebrandinghez.
+        applicationId = "hu.navigator.nav"
         minSdk = 26
         targetSdk = 35
         // Overridable from CI: -PappVersionCode / -PappVersionName (ci.yml derives

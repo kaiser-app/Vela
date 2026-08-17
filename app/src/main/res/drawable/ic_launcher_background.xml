@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Brand gradient behind the launcher sail, matching docs/logo.svg. -->
+<!-- NA-VIGATOR brand gradient: deep night-navigation indigo to a road-sign amber,
+     deliberately distinct from the upstream Vela teal. Placeholder — swap for a
+     proper designed mark before Play Store submission. -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
         android:angle="315"
-        android:startColor="#0D3D43"
-        android:endColor="#149387"
+        android:startColor="#101A33"
+        android:endColor="#E8973A"
         android:type="linear" />
 </shape>
