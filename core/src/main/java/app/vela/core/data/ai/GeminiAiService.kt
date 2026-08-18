@@ -22,7 +22,7 @@ class GeminiAiService @Inject constructor() : AiService {
 
     private fun getModel(systemInstruction: String): GenerativeModel {
         return GenerativeModel(
-            modelName = "gemini-1.5-flash",
+            modelName = "models/gemini-1.5-flash", // explicit model path
             apiKey = apiKey,
             systemInstruction = content { text(systemInstruction) }
         )
@@ -30,19 +30,23 @@ class GeminiAiService @Inject constructor() : AiService {
 
     override fun askAboutPlace(place: Place, question: String): Flow<String> = flow {
         if (apiKey.isBlank()) {
-            emit("Hiba: Gemini API kulcs nincs beállítva.")
+            emit("Hiba: Gemini API kulcs nincs beállítva a Beállításokban.")
             return@flow
         }
 
-        val context = buildPlaceContext(place)
-        val model = getModel("Te egy segítőkész utazási asszisztens vagy a Vela navigációs alkalmazásban. " +
-                "A válaszaid legyenek lényegretörőek, barátságosak és magyar nyelvűek.")
-        
-        val response = model.generateContentStream(content {
-            text("Itt vannak az információk a helyről:\n$context\n\nKérdés: $question")
-        })
+        try {
+            val context = buildPlaceContext(place)
+            val model = getModel("Te egy segítőkész utazási asszisztens vagy a Vela navigációs alkalmazásban. " +
+                    "A válaszaid legyenek lényegretörőek, barátságosak és magyar nyelvűek.")
+            
+            val response = model.generateContentStream(content {
+                text("Itt vannak az információk a helyről:\n$context\n\nKérdés: $question")
+            })
 
-        response.map { it.text ?: "" }.collect { emit(it) }
+            response.map { it.text ?: "" }.collect { emit(it) }
+        } catch (e: Exception) {
+            emit("AI Hiba: ${e.localizedMessage ?: "Ismeretlen hiba történt a Gemini hívása közben."}")
+        }
     }
 
     override fun summarizePlace(place: Place): Flow<String> = flow {
@@ -51,15 +55,19 @@ class GeminiAiService @Inject constructor() : AiService {
             return@flow
         }
 
-        val context = buildPlaceContext(place)
-        val model = getModel("Te egy helyszín-összefoglaló asszisztens vagy. " +
-                "Készíts egy rövid, 2-3 mondatos összefoglalót a helyről a megadott adatok és vélemények alapján magyarul.")
+        try {
+            val context = buildPlaceContext(place)
+            val model = getModel("Te egy helyszín-összefoglaló asszisztens vagy. " +
+                    "Készíts egy rövid, 2-3 mondatos összefoglalót a helyről a megadott adatok és vélemények alapján magyarul.")
 
-        val response = model.generateContentStream(content {
-            text("Foglald össze ezt a helyet:\n$context")
-        })
+            val response = model.generateContentStream(content {
+                text("Foglald össze ezt a helyet:\n$context")
+            })
 
-        response.map { it.text ?: "" }.collect { emit(it) }
+            response.map { it.text ?: "" }.collect { emit(it) }
+        } catch (e: Exception) {
+            emit("AI Hiba: ${e.localizedMessage}")
+        }
     }
 
     private fun buildPlaceContext(place: Place): String {

@@ -318,6 +318,7 @@
     <string name="place_back">Back</string>
     <string name="place_street_view">Street View</string>
     <string name="place_ask_ai">Ask AI</string>
+    <string name="place_ai_short">AI</string>
     <string name="place_ai_loading">Vela AI is thinking…</string>
     <string name="place_ai_error">AI couldn\'t respond. Check your API key.</string>
     <string name="street_view_none">No Street View imagery here</string>

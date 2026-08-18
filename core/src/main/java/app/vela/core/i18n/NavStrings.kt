@@ -1823,16 +1823,31 @@ object HuNavStrings : NavStrings {
         else -> ""
     }
 
+    /** Hungarian definite article helper: "a" or "az" based on the first letter or number. */
+    private fun det(text: String?): String {
+        if (text == null || text.isBlank()) return ""
+        val trimmed = text.trim().lowercase()
+        val first = trimmed.firstOrNull() ?: return "a"
+        
+        // Handle numbers (especially for roundabout exits)
+        if (first.isDigit()) {
+            // 1 (első), 5 (ötödik) start with vowels in Hungarian speech
+            return if (first == '1' || first == '5') "az $text" else "a $text"
+        }
+
+        return if (first in "aeiouáéíóöőúüű") "az $text" else "a $text"
+    }
+
     override fun phrase(type: String, mod: String?, road: String?, dest: String?, exitNo: String?, rbExit: Int?): String {
-        val onto = if (road != null) " a(z) $road irányába" else ""
+        val onto = if (road != null) " ${det(road)} irányába" else ""
         val toward = when {
             dest != null -> " $dest felé"
-            road != null -> " a(z) $road irányába"
+            road != null -> " ${det(road)} irányába"
             else -> ""
         }
         val m = modWord(mod)
         return when (type) {
-            "depart" -> if (road != null) "Indulj el a(z) $road úton" else "Kezdődik az útvonal"
+            "depart" -> if (road != null) "Indulj el ${det(road)} úton" else "Kezdődik az útvonal"
             "arrive" -> "Megérkeztél az úti célodhoz"
             "turn", "end of road" -> ("Fordulj $m").trim() + onto
             "continue", "new name" -> if (m.isNotBlank() && m != "egyenesen") ("Tarts $m").trim() + onto else "Haladj tovább$onto"
@@ -1842,9 +1857,9 @@ object HuNavStrings : NavStrings {
                 mod?.contains("left") == true -> "Hajts fel a pályára balra$toward"
                 else -> "Hajts fel a pályára$toward"
             }
-            "off ramp" -> if (exitNo != null) "Hajts ki a(z) $exitNo kijáratnál$toward" else "Hajts ki a kijáratnál$toward"
+            "off ramp" -> if (exitNo != null) "Hajts ki ${det(exitNo)} kijáratnál$toward" else "Hajts ki a kijáratnál$toward"
             "fork" -> ("Tarts $m").trim() + toward
-            "roundabout", "rotary", "exit roundabout", "exit rotary" -> if (rbExit != null) "A körforgalomnál hajts ki a(z) $rbExit. kijáratnál$onto" else "Hajts be a körforgalomba$onto"
+            "roundabout", "rotary", "exit roundabout", "exit rotary" -> if (rbExit != null) "A körforgalomnál hajts ki ${det(rbExit.toString() + ".")} kijáratnál$onto" else "Hajts be a körforgalomba$onto"
             "roundabout turn" -> ("A körforgalomnál fordulj $m").trim() + onto
             "uturn" -> "Fordulj vissza$onto"
             else -> if (m.isNotBlank()) ("Fordulj $m").trim() + onto else "Haladj tovább$onto"

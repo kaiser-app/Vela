@@ -1606,6 +1606,16 @@ fun MapScreen(
                     },
                     modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
                 ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.place_search_along_route)) }
+
+                // Vela AI - Voice interaction during navigation
+                FloatingActionButton(
+                    onClick = {
+                        if (vm.voiceMicGranted()) startLocalVoice()
+                        else recordAudioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                    },
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                ) { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Assistant") }
             }
         }
 

@@ -309,6 +309,7 @@
     <string name="place_back">Vissza</string>
     <string name="place_street_view">Utcakép</string>
     <string name="place_ask_ai">Kérdezz a Velától</string>
+    <string name="place_ai_short">AI</string>
     <string name="place_ai_loading">A Vela AI gondolkodik…</string>
     <string name="place_ai_error">Az AI nem tudott válaszolni. Ellenőrizd az API kulcsod.</string>
     <string name="street_view_none">Itt nincs Utcakép-felvétel</string>

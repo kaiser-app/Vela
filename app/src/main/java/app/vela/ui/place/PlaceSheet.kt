@@ -927,6 +927,10 @@ fun PlaceSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 ActionPill(Icons.Default.Directions, stringResource(R.string.place_directions), emphasized = true, onClick = onDirections)
+
+                // Vela AI - Ask about this place (Moved forward and shortened)
+                ActionPill(Icons.Default.AutoAwesome, stringResource(R.string.place_ai_short), onClick = { onAskAi() })
+
                 if (isParking) {
                     ActionPill(Icons.Default.Delete, stringResource(R.string.place_clear_parking), onClick = onClearParking)
                 }
@@ -948,9 +952,6 @@ fun PlaceSheet(
                 // surface now, not a hand-off to Google's app. A tap loads the nearest pano; no
                 // coverage shows a brief "no Street View here" toast.
                 ActionPill(Icons.Filled.Streetview, stringResource(R.string.place_street_view), onClick = onStreetView)
-
-                // Vela AI - Ask about this place
-                ActionPill(Icons.Default.AutoAwesome, stringResource(R.string.place_ask_ai), onClick = { onAskAi() })
             }
 
             app.vela.ui.SheetFold(extrasComposed, extrasFraction) {
