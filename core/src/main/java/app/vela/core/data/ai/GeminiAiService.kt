@@ -12,8 +12,6 @@ import javax.inject.Singleton
 @Singleton
 class GeminiAiService @Inject constructor() : AiService {
 
-    // NOTE: This should be injected or read from a secure source.
-    // For now, we'll assume it's provided via a property.
     private var apiKey: String = ""
 
     fun setApiKey(key: String) {
@@ -22,7 +20,7 @@ class GeminiAiService @Inject constructor() : AiService {
 
     private fun getModel(systemInstruction: String): GenerativeModel {
         return GenerativeModel(
-            modelName = "models/gemini-1.5-flash", // explicit model path
+            modelName = "gemini-1.5-flash", // No "models/" prefix, SDK handles it
             apiKey = apiKey,
             systemInstruction = content { text(systemInstruction) }
         )
@@ -45,7 +43,14 @@ class GeminiAiService @Inject constructor() : AiService {
 
             response.map { it.text ?: "" }.collect { emit(it) }
         } catch (e: Exception) {
-            emit("AI Hiba: ${e.localizedMessage ?: "Ismeretlen hiba történt a Gemini hívása közben."}")
+            val msg = e.localizedMessage ?: ""
+            val friendlyError = when {
+                msg.contains("API_KEY_INVALID") -> "Érvénytelen API kulcs. Ellenőrizd a Beállításokban!"
+                msg.contains("404") -> "A Gemini modell nem található (404). Próbáld később."
+                msg.contains("SAFETY") -> "Az AI biztonsági okokból elutasította a választ."
+                else -> "AI Hiba: $msg"
+            }
+            emit(friendlyError)
         }
     }
 
