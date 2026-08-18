@@ -1,5 +1,6 @@
 package app.vela.core.data.ai
 
+import app.vela.core.model.LatLng
 import app.vela.core.model.Place
 import kotlinx.coroutines.flow.Flow
 
@@ -8,10 +9,17 @@ import kotlinx.coroutines.flow.Flow
  */
 interface AiService {
     /**
-     * Ask a question about a specific [Place].
-     * Returns a [Flow] of the response string (streaming).
+     * Ask a question with full context (location, time, destination).
      */
-    fun askAboutPlace(place: Place, question: String): Flow<String>
+    fun ask(
+        question: String,
+        currentLoc: LatLng? = null,
+        currentAddress: String? = null,
+        destination: String? = null,
+        eta: String? = null,
+        place: Place? = null,
+        time: String? = null
+    ): Flow<String>
 
     /**
      * Summarize a [Place] based on its details and reviews.

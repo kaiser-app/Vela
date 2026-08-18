@@ -647,7 +647,7 @@ fun MapScreen(
     // Non-null while a voice failure is being explained. Before this existed every failure closed
     // the listening sheet and said nothing (the fork's issue #81; ported 2026-07-23).
     var voiceError by remember { mutableStateOf<app.vela.voice.VoiceResult.Reason?>(null) }
-    fun startLocalVoice() {
+    fun startLocalVoice(toAi: Boolean = false) {
         voiceStop = false; voiceAbort = false; voiceStarted = false; voiceLevel = 0f; voiceListening = true
         voiceScope.launch {
             val result = vm.voiceListen(
@@ -656,17 +656,14 @@ fun MapScreen(
                 cancelled = { voiceStop },
             )
             voiceListening = false
-            if (voiceAbort) return@launch // the user backed out; never talk back at them
+            if (voiceAbort) return@launch
             when (result) {
                 is app.vela.voice.VoiceResult.Text -> {
                     focusManager.clearFocus()
-                    vm.applyVoiceQuery(result.query)
+                    if (toAi) vm.askAiAboutPlace(result.query)
+                    else vm.applyVoiceQuery(result.query)
                 }
-                // Heard nothing: the sheet closing IS the feedback. An error here would scold
-                // someone who simply changed their mind.
                 app.vela.voice.VoiceResult.NoSpeech -> Unit
-                // Anything else used to close the sheet silently and identically - the user could
-                // not tell a missing model from a mic this phone would not open, and neither could we.
                 is app.vela.voice.VoiceResult.Failed -> voiceError = result.reason
             }
         }
@@ -753,18 +750,7 @@ fun MapScreen(
     } else {
         null
     }
-    if (showAsrOffer) {
-        app.vela.ui.VelaDialog(
-            onDismissRequest = { showAsrOffer = false },
-            title = stringResource(R.string.map_asr_offer_title),
-            confirmText = stringResource(R.string.settings_voice_search_download, app.vela.voice.AsrEngine.DEFAULT.sizeMb),
-            onConfirm = { showAsrOffer = false; vm.downloadAsrModel() },
-            dismissText = stringResource(R.string.root_not_now),
-            onDismiss = { showAsrOffer = false },
-            dismissLowEmphasis = true,
-            text = { Text(stringResource(R.string.map_asr_offer_body)) },
-        )
-    }
+    if (showAsrOffer)
     // Reflect whether the on-device model is present, so the mic + Settings update without a relaunch.
     LaunchedEffect(Unit) { vm.refreshAsr() }
     // POI visibility prefs act immediately (clear + re-resolve), not on the next pan.
@@ -1612,7 +1598,7 @@ fun MapScreen(
                 // Vela AI - Voice interaction during navigation
                 FloatingActionButton(
                     onClick = {
-                        if (vm.voiceMicGranted()) startLocalVoice()
+                        if (vm.voiceMicGranted()) startLocalVoice(toAi = true)
                         else recordAudioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,

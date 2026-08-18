@@ -98,6 +98,9 @@ interface NavStrings {
     fun useLanesToDo(side: LaneSide, count: Int, instruction: String): String =
         useLanes(side, count) + ". " + instruction
 
+    fun trafficAlert(kind: app.vela.core.data.TrafficControl.Kind): String? = null
+}
+
     /**
      * Expand road abbreviations + numbers so the TTS engine SAYS them ("St"→"Street", "128th"→"one
      * twenty-eighth"). English-specific, so it's **opt-in**: the default is identity, and ONLY
@@ -242,6 +245,15 @@ object EnNavStrings : NavStrings {
         EN_SPEECH_WORDS.forEach { (re, rep) -> s = re.replace(s, rep) }
         s = SpeechText.spokenNumbers(s) // "128th" → "one twenty eighth" (space, not hyphen — the compound got a mushy -ty), not a mangled "one hundred and 28th"
         return s
+    }
+
+    override fun trafficAlert(kind: app.vela.core.data.TrafficControl.Kind): String? = when (kind) {
+        app.vela.core.data.TrafficControl.Kind.STOP -> "Upcoming stop sign"
+        app.vela.core.data.TrafficControl.Kind.RAIL_CROSSING -> "Railway crossing ahead"
+        app.vela.core.data.TrafficControl.Kind.PEDESTRIAN_CROSSING -> "Watch for pedestrians"
+        app.vela.core.data.TrafficControl.Kind.BICYCLE_PATH -> "Bicycle crossing"
+        app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> "Equal priority intersection, yield to the right"
+        else -> null
     }
 }
 
@@ -1906,6 +1918,15 @@ object HuNavStrings : NavStrings {
     override fun useLanes(side: LaneSide, count: Int): String {
         val sideWord = when (side) { LaneSide.LEFT -> "bal"; LaneSide.RIGHT -> "jobb"; LaneSide.CENTER -> "középső" }
         return if (count > 1) "Használd a $sideWord $count sávot" else "Használd a $sideWord sávot"
+    }
+
+    override fun trafficAlert(kind: app.vela.core.data.TrafficControl.Kind): String? = when (kind) {
+        app.vela.core.data.TrafficControl.Kind.STOP -> "Stop tábla következik"
+        app.vela.core.data.TrafficControl.Kind.RAIL_CROSSING -> "Vasúti átjáró előtted"
+        app.vela.core.data.TrafficControl.Kind.PEDESTRIAN_CROSSING -> "Vigyázz, gyalogosátkelő"
+        app.vela.core.data.TrafficControl.Kind.BICYCLE_PATH -> "Biciklisáv kereszteződés"
+        app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> "Egyenrangú útkereszteződés, figyeld a jobbkezet"
+        else -> null
     }
 
     private fun huNum(x: Double): String {

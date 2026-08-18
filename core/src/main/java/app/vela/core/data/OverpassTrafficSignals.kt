@@ -19,7 +19,7 @@ import okhttp3.OkHttpClient
  *  (railway level crossings, speed humps - 2026-08-08, the buildable subset of "aids on the road"
  *  after every live-incident source proved dead, see ROADMAP) ride the same pipeline. */
 data class TrafficControl(val loc: LatLng, val kind: Kind) {
-    enum class Kind { SIGNAL, STOP, RAIL_CROSSING, SPEED_HUMP }
+    enum class Kind { SIGNAL, STOP, RAIL_CROSSING, SPEED_HUMP, PEDESTRIAN_CROSSING, BICYCLE_PATH, EQUAL_PRIORITY }
 }
 
 @Serializable
@@ -52,12 +52,18 @@ object OverpassTrafficSignals {
         "node[\"highway\"=\"traffic_signals\"]$where;" +
             "node[\"highway\"=\"stop\"]$where;" +
             "node[\"railway\"=\"level_crossing\"]$where;" +
-            "node[\"traffic_calming\"~\"^(bump|hump|table|cushion)$\"]$where;"
+            "node[\"traffic_calming\"~\"^(bump|hump|table|cushion)$\"]$where;" +
+            "node[\"highway\"=\"crossing\"]$where;" +
+            "node[\"cycleway\"]$where;" +
+            "node[\"priority\"=\"uncontrolled\"]$where;"
 
     private fun kindOf(tags: Map<String, String>?): TrafficControl.Kind = when {
         tags?.get("highway") == "stop" -> TrafficControl.Kind.STOP
         tags?.get("railway") == "level_crossing" -> TrafficControl.Kind.RAIL_CROSSING
         tags?.get("traffic_calming") != null -> TrafficControl.Kind.SPEED_HUMP
+        tags?.get("highway") == "crossing" -> TrafficControl.Kind.PEDESTRIAN_CROSSING
+        tags?.get("cycleway") != null -> TrafficControl.Kind.BICYCLE_PATH
+        tags?.get("priority") == "uncontrolled" -> TrafficControl.Kind.EQUAL_PRIORITY
         else -> TrafficControl.Kind.SIGNAL
     }
 

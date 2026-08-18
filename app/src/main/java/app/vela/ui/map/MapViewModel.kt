@@ -5884,6 +5884,73 @@ class MapViewModel @Inject constructor(
         }
     }
 
+    fun askAiAboutPlace(question: String) {
+        val s = _state.value
+        val p = s.selected
+        val apiKey = appContext.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+            .getString("gemini_api_key", "") ?: ""
+
+        if (aiService is app.vela.core.data.ai.GeminiAiService) {
+            aiService.setApiKey(apiKey)
+        }
+
+        val now = java.text.SimpleDateFormat("HH:mm, yyyy.MM.dd", java.util.Locale.getDefault()).format(java.util.Date())
+        val eta = if (s.navigating) {
+            java.text.DateFormat.getTimeInstance(java.text.DateFormat.SHORT)
+                .format(java.util.Date(System.currentTimeMillis() + (s.nav.remainingDuration * 1000).toLong()))
+        } else null
+
+        _state.update { it.copy(aiLoading = true, aiResponse = "") }
+        viewModelScope.launch {
+            try {
+                aiService.ask(
+                    question = question,
+                    currentLoc = s.myLocation,
+                    currentAddress = null,
+                    destination = if (s.navigating) s.arrivedLabel else null,
+                    eta = eta,
+                    place = p,
+                    time = now
+                ).collect { chunk ->
+                    _state.update { old ->
+                        old.copy(aiResponse = (old.aiResponse ?: "") + chunk)
+                    }
+                }
+            } catch (t: Throwable) {
+                _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
+            } finally {
+                _state.update { it.copy(aiLoading = false) }
+                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
+            }
+        }
+    }
+
+    fun summarizePlaceWithAi() {
+        val p = _state.value.selected ?: return
+        val apiKey = appContext.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+            .getString("gemini_api_key", "") ?: ""
+
+        if (aiService is app.vela.core.data.ai.GeminiAiService) {
+            aiService.setApiKey(apiKey)
+        }
+
+        _state.update { it.copy(aiLoading = true, aiResponse = "") }
+        viewModelScope.launch {
+            try {
+                aiService.summarizePlace(p).collect { chunk ->
+                    _state.update { old ->
+                        old.copy(aiResponse = (old.aiResponse ?: "") + chunk)
+                    }
+                }
+            } catch (t: Throwable) {
+                _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
+            } finally {
+                _state.update { it.copy(aiLoading = false) }
+                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
+            }
+        }
+    }
+
     companion object {
         const val KEY_DISMISSED = "dismissed"
         const val CONTROLS_MIN_ZOOM = 16.0 // draw traffic lights/stop signs only when zoomed in this close

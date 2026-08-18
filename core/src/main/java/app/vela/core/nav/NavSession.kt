@@ -7,6 +7,7 @@ import app.vela.core.model.LatLng
 import app.vela.core.model.Route
 import app.vela.core.model.TravelMode
 import app.vela.core.model.distanceTo
+import app.vela.core.i18n.NavStringsRegistry
 import app.vela.core.voice.VoiceGuide
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -128,6 +129,7 @@ class NavSession @Inject constructor(
     private var stopMarks: List<Double?> = emptyList()
     private var passedStops = 0
     private var planRoute: Route? = null // the route [stopMarks] were computed against
+    private val alertEngine = NavAlertEngine()
 
     /** An intermediate stop on a multi-stop trip. */
     data class NavStop(val location: LatLng, val label: String)
@@ -280,10 +282,22 @@ class NavSession @Inject constructor(
         }
     }
 
+    /** Apply the traffic controls (lights, stop signs, etc.) fetched for this route. */
+    fun setTrafficControls(controls: List<app.vela.core.data.TrafficControl>) {
+        alertEngine.setControls(controls)
+    }
+
     fun onLocation(loc: LatLng, imperial: Boolean = false, speedMps: Double? = null, accuracyM: Double? = null, bearingDeg: Double? = null) {
         val s = _state.value
         val route = s.route ?: return
         if (!s.navigating || s.arrived) return
+
+        // Traffic condition alerts (STOP signs, crossings, etc.)
+        alertEngine.check(loc)?.let { kind ->
+            NavStringsRegistry.current().trafficAlert(kind)?.let { phrase ->
+                voice.speak(phrase, interrupt = false)
+            }
+        }
 
         // Consume a failed-reroute latch clear HERE, on the location thread, so the engine
         // computes FROM the cleared state (4 more deviated fixes → natural retry) — clearing it
