@@ -4484,8 +4484,12 @@ class MapViewModel @Inject constructor(
 
     /** Apply a transcript from either voice tier as the query and run the search. */
     fun applyVoiceQuery(text: String) {
-        onQueryChange(text)
-        search()
+        if (state.value.selected != null && !state.value.navigating) {
+            askAiAboutPlace(text)
+        } else {
+            onQueryChange(text)
+            search()
+        }
     }
 
     /** Make an already-downloaded voice active: persist the pick, reload the synth (the single switch

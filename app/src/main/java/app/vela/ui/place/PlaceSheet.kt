@@ -98,6 +98,7 @@ import androidx.compose.material.icons.filled.Tram
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.FormatQuote
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.LocalCafe
@@ -258,6 +259,7 @@ fun PlaceSheet(
     onDirections: () -> Unit,
     onStreetView: () -> Unit = {},
     onAskAi: () -> Unit = {},
+    onMic: (() -> Unit)? = null,
     onOpenPlace: (Place) -> Unit = {},
     onOpenSimilar: (app.vela.core.model.SimilarPlace) -> Unit = {},
     onSetShortcut: (ShortcutKind) -> Unit = {},
@@ -974,6 +976,12 @@ fun PlaceSheet(
                             if (aiLoading) {
                                 Spacer(Modifier.width(8.dp))
                                 CircularProgressIndicator(Modifier.size(12.dp), strokeWidth = 2.dp)
+                            }
+                            Spacer(Modifier.weight(1f))
+                            if (onMic != null && !aiLoading) {
+                                IconButton(onClick = onMic, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.Mic, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                                }
                             }
                         }
                         Spacer(Modifier.height(8.dp))
