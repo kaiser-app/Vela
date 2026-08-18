@@ -800,13 +800,14 @@ fun MapScreen(
 
     val notifPermLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
-    ) { vm.startNav() }
+    ) { vm.startNav() } // Proceed regardless of the result
     fun proceedStartNav() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(
                 context, Manifest.permission.POST_NOTIFICATIONS,
-            ) != PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_DENIED // Changed to explicitly check DENIED (not yet asked)
         ) {
+            // Only ask if not already denied/granted. If denied, startNav will just run without notif.
             notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         } else {
             vm.startNav()

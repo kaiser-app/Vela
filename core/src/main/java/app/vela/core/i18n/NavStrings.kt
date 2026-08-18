@@ -1839,7 +1839,8 @@ object HuNavStrings : NavStrings {
     }
 
     override fun phrase(type: String, mod: String?, road: String?, dest: String?, exitNo: String?, rbExit: Int?): String {
-        val onto = if (road != null) " ${det(road)} irányába" else ""
+        val onto = if (road != null) " ${det(road)} útra" else ""
+        val onRoad = if (road != null) " ${det(road)} úton" else ""
         val toward = when {
             dest != null -> " $dest felé"
             road != null -> " ${det(road)} irányába"
@@ -1847,10 +1848,10 @@ object HuNavStrings : NavStrings {
         }
         val m = modWord(mod)
         return when (type) {
-            "depart" -> if (road != null) "Indulj el ${det(road)} úton" else "Kezdődik az útvonal"
+            "depart" -> if (road != null) "Indulj el $onRoad" else "Kezdődik az útvonal"
             "arrive" -> "Megérkeztél az úti célodhoz"
             "turn", "end of road" -> ("Fordulj $m").trim() + onto
-            "continue", "new name" -> if (m.isNotBlank() && m != "egyenesen") ("Tarts $m").trim() + onto else "Haladj tovább$onto"
+            "continue", "new name" -> if (m.isNotBlank() && m != "egyenesen") ("Tarts $m").trim() + onto else "Haladj tovább$onRoad"
             "merge" -> "Sorolj be$toward"
             "on ramp", "ramp" -> when {
                 mod?.contains("right") == true -> "Hajts fel a pályára jobbra$toward"
@@ -1862,7 +1863,7 @@ object HuNavStrings : NavStrings {
             "roundabout", "rotary", "exit roundabout", "exit rotary" -> if (rbExit != null) "A körforgalomnál hajts ki ${det(rbExit.toString() + ".")} kijáratnál$onto" else "Hajts be a körforgalomba$onto"
             "roundabout turn" -> ("A körforgalomnál fordulj $m").trim() + onto
             "uturn" -> "Fordulj vissza$onto"
-            else -> if (m.isNotBlank()) ("Fordulj $m").trim() + onto else "Haladj tovább$onto"
+            else -> if (m.isNotBlank()) ("Fordulj $m").trim() + onto else "Haladj tovább$onRoad"
         }
     }
 

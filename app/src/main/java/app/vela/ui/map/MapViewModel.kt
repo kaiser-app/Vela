@@ -3654,9 +3654,11 @@ class MapViewModel @Inject constructor(
     private var navStartJob: kotlinx.coroutines.Job? = null
 
     fun startNav() {
-        val route = _state.value.activeRoute ?: return
-        // RE-ENTRANCY GUARD (user 2026-07-16: multiple "Starting navigation" from double-tapping
-        // while start was slow): ignore Start while a start is already in flight or nav is running.
+        val route = _state.value.activeRoute ?: run {
+            android.widget.Toast.makeText(appContext, "Nincs aktív útvonal", android.widget.Toast.LENGTH_SHORT).show()
+            return
+        }
+        // RE-ENTRANCY GUARD ...
         if (navStartJob?.isActive == true || _state.value.navigating) return
         // The pre-nav search's results are stale junk once driving - and the nav bottom slot
         // yields to a NON-EMPTY results list (the in-nav along-route flow), so leftovers from
