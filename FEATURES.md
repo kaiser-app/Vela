@@ -2117,7 +2117,7 @@ Status legend: ✅ done · 🟡 partial / in progress · ⬜ planned
   shares and the geo: handler are untouched either way; a pinned home shortcut may need
   re-adding after switching since Android renames apps per launcher component.
 - ✅ **Project website (2026-07-15).** A single-page showcase at
-  https://pimpinpumpkin.github.io/Vela/ - hero with a live nav mockup, feature grid, the
+  https://kaiser-app.github.io/Vela/ - hero with a live nav mockup, feature grid, the
   privacy pitch, a screenshot strip and download paths (direct APK / Obtainium / build it).
   Lives in `site/` (self-contained HTML/CSS/JS, no external requests, screenshots are the
   public Davis set as optimized webp). It deploys through the SAME Pages artifact as the
@@ -2153,7 +2153,8 @@ Status legend: ✅ done · 🟡 partial / in progress · ⬜ planned
 - ✅ **Simulate my location (demo mode)** (Settings → Navigation → "Simulate my location (demo)", **off by default**) - a sibling of simulate-driving for the *browse* map: flip it on and Vela pretends you're standing at the current map centre, so the location dot, the directions origin ("Your location"), and recenter all read from there instead of your real GPS. Lets the app be shown or photographed from anywhere without leaking a real position (`ui/SimLocation.kt`, a process-wide reactive holder persisted to `vela_settings`; `MapViewModel` pins `myLocation` to the captured point and suspends the live GPS collector, resuming it when you turn the toggle back off). It's how the Davis/Sacramento screenshots were taken from another state. **Turn it off to use real GPS.**
 - ✅ Settings shows the installed app version (name + build code)
 - ✅ **Full D-pad / no-touchscreen operation** (touch is a bonus, not required) - every surface reachable and activatable by focus traversal with a visible focus ring; the map itself is key-drivable (arrows pan, OK "taps" a centre crosshair, hold-OK long-presses/drops a pin, on-screen +/− zoom buttons); key alternatives for every gesture (banner step preview ←/→, sheet-handle OK-toggle, photo-viewer paging); the search overlay's focus traps fixed. A full-function sweep (2026-07-07) exercised every surface end-to-end by D-pad and closed the last gaps: text fields escape UP/DOWN via `dpadFieldEscape` (Settings + reviews search), the search field's DOWN drops into the suggestions, Choose-on-map keeps the map pannable to place the pin, and the directions panel scroll-caps so **Start** is reachable with 4 alternates (the last also fixes a touch layout bug). **Every screen/sheet/panel auto-focuses a sensible element on open (`rememberDpadAutoFocus`), so no keypress is wasted "waking up" focus** - and because a Compose `DropdownMenu`/`AlertDialog` can't be pre-focused (framework limit, ~10 approaches proven), menus and dialogs were rebuilt as **`VelaMenu`** (anchored DropdownMenu under touch, auto-focusing raw-Dialog chooser under D-pad) and **`VelaDialog`** (auto-focusing raw-Dialog), so those land focused too. Affordances appear only in key-driven input mode (`rememberDpadMode`), so touch UX is unchanged. Design/findings/merge policy: [`docs/dpad.md`](docs/dpad.md)
-- 🟡 F-Droid: Vela's OWN repo is live (see FDROID.md - add it to any F-Droid client); official f-droid.org inclusion + reproducible build still open
+- 🟡 F-Droid: Vela's OWN repo is live (see FDROID.md - add it to any F-Droid client);
+  https://kaiser-app.github.io/Vela/repo
 - ⬜ UnifiedPush for delay alerts (no FCM)
 - ⬜ ACRA / self-hosted crash reporting
 

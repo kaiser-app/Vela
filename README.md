@@ -8,15 +8,15 @@
 
 Live traffic, real place data and turn-by-turn navigation, with zero Google on your phone.
 
-[![Stable release](https://img.shields.io/github/v/release/PimpinPumpkin/Vela?label=stable&color=149387)](https://github.com/PimpinPumpkin/Vela/releases/latest)
-[![Build](https://img.shields.io/github/actions/workflow/status/PimpinPumpkin/Vela/ci.yml?branch=main&label=build)](https://github.com/PimpinPumpkin/Vela/actions/workflows/ci.yml)
-[![License: GPL v3](https://img.shields.io/github/license/PimpinPumpkin/Vela?color=blue)](LICENSE)
+[![Stable release](https://img.shields.io/github/v/release/kaiser-app/Vela?label=stable&color=149387)](https://github.com/kaiser-app/Vela/releases/latest)
+[![Build](https://img.shields.io/github/actions/workflow/status/kaiser-app/Vela/ci.yml?branch=main&label=build)](https://github.com/kaiser-app/Vela/actions/workflows/ci.yml)
+[![License: GPL v3](https://img.shields.io/github/license/kaiser-app/Vela?color=blue)](LICENSE)
 [![Translated on Weblate](https://img.shields.io/badge/translations-Weblate-2ecccf)](https://hosted.weblate.org/projects/vela-maps/)
-[![Stars](https://img.shields.io/github/stars/PimpinPumpkin/Vela?style=flat&color=ffd43b)](https://github.com/PimpinPumpkin/Vela/stargazers)
+[![Stars](https://img.shields.io/github/stars/kaiser-app/Vela?style=flat&color=ffd43b)](https://github.com/kaiser-app/Vela/stargazers)
 
-[Install](#install) · [What you get](#what-you-get) · [Privacy](#privacy) · [How it works](docs/HOW-IT-WORKS.md) · [Build](#build) · [Discussions](https://github.com/PimpinPumpkin/Vela/discussions) · [Translate](docs/TRANSLATING.md)
+[Install](#install) · [What you get](#what-you-get) · [Privacy](#privacy) · [How it works](docs/HOW-IT-WORKS.md) · [Build](#build) · [Discussions](https://github.com/kaiser-app/Vela/discussions) · [Translate](docs/TRANSLATING.md)
 
-[<img src="https://img.shields.io/badge/VISIT%20THE%20WEBSITE-149387?style=for-the-badge" alt="Visit the website">](https://pimpinpumpkin.github.io/Vela/)
+[<img src="https://img.shields.io/badge/VISIT%20THE%20WEBSITE-149387?style=for-the-badge" alt="Visit the website">](https://kaiser-app.github.io/Vela/)
 
 </div>
 
@@ -45,7 +45,7 @@ with a tap-through stop list for every route; and the in-app light/dark themes
 
 ## Install
 
-[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="54">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/PimpinPumpkin/Vela)&nbsp;&nbsp;[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid (Vela's own repo)" height="54">](FDROID.md)
+[<img src="https://raw.githubusercontent.com/ImranR98/Obtainium/main/assets/graphics/badge_obtainium.png" alt="Get it on Obtainium" height="54">](https://apps.obtainium.imranr.dev/redirect?r=obtainium://add/https://github.com/kaiser-app/Vela)&nbsp;&nbsp;[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid (Vela's own repo)" height="54">](FDROID.md)
 
 Obtainium auto-tracks the
 **weekly stable** release. Turn on "include prereleases" and you get the
@@ -53,13 +53,13 @@ Obtainium auto-tracks the
 
 The F-Droid badge is
 **Vela's own repository**, not the f-droid.org catalog - add
-`https://pimpinpumpkin.github.io/Vela/repo` to any F-Droid client and it serves
+`https://kaiser-app.github.io/Vela/repo` to any F-Droid client and it serves
 the same signed APKs, weekly stable by default (fingerprint and nightly-channel
 setup in [FDROID.md](FDROID.md)). Or grab an APK straight from
-[Releases](https://github.com/PimpinPumpkin/Vela/releases).
+[Releases](https://github.com/kaiser-app/Vela/releases).
 
 There's also a one-page tour at
-**[pimpinpumpkin.github.io/Vela](https://pimpinpumpkin.github.io/Vela/)**.
+**[kaiser-app.github.io/Vela](https://kaiser-app.github.io/Vela/)**.
 
 [![Support Vela on Buy Me a Coffee](https://img.shields.io/badge/support%20vela-buy%20me%20a%20coffee-ffdd00)](https://buymeacoffee.com/PimpinPumpkin)
 

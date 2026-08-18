@@ -69,7 +69,7 @@ android {
             "String",
             "ROUTING_MANIFEST_URL",
             "\"${(project.findProperty("routingManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/routing-graphs/routing-manifest-v2.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/routing-graphs/routing-manifest-v2.json"}\"",
         )
         // Obf region catalog (the GraphHopper graphs' successor, issue #214). While this manifest
         // is empty/absent the app serves the legacy routing-graph catalog; once regions are baked
@@ -79,7 +79,7 @@ android {
             "String",
             "OBF_MANIFEST_URL",
             "\"${(project.findProperty("obfManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/obf-regions/obf-manifest.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/obf-regions/obf-manifest.json"}\"",
         )
         // Open building-footprint overlay (Microsoft, ODbL) PMTiles catalog — same override pattern
         // (-PoverlayManifestUrl=http://127.0.0.1:8099/... for local testing via `adb reverse`).
@@ -87,7 +87,7 @@ android {
             "String",
             "OVERLAY_MANIFEST_URL",
             "\"${(project.findProperty("overlayManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/building-overlays/building-overlay-manifest.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/building-overlays/building-overlay-manifest.json"}\"",
         )
         // Posted speed-limit overlay (OSM maxspeed, ODbL) PMTiles catalog — the "Speed B" online source that
         // shows a limit WITHOUT the offline routing graph. Same override pattern (-PmaxspeedManifestUrl=…).
@@ -95,7 +95,7 @@ android {
             "String",
             "MAXSPEED_MANIFEST_URL",
             "\"${(project.findProperty("maxspeedManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/maxspeed-overlays/maxspeed-overlay-manifest.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/maxspeed-overlays/maxspeed-overlay-manifest.json"}\"",
         )
         // Open house-number (address-point) overlay (OpenAddresses) PMTiles catalog — same override pattern
         // (-PaddressManifestUrl=…). Rendered as a SymbolLayer of house numbers where OSM lacks addr:housenumber.
@@ -103,7 +103,7 @@ android {
             "String",
             "ADDRESS_MANIFEST_URL",
             "\"${(project.findProperty("addressManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/address-overlays/address-overlay-manifest.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/address-overlays/address-overlay-manifest.json"}\"",
         )
         // Offline PLACE packs (whole-region POI/address SQLite, pulled with a routing-region download so a
         // state is searchable offline) — same override pattern (-PpoiPackManifestUrl=… via `adb reverse`).
@@ -111,7 +111,7 @@ android {
             "String",
             "POI_PACK_MANIFEST_URL",
             "\"${(project.findProperty("poiPackManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/poi-packs/poi-pack-manifest.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/poi-packs/poi-pack-manifest.json"}\"",
         )
         // ALPR/Flock surveillance-camera dataset (DeFlock/OSM). A bundled floor ships in assets/, and the
         // app refreshes from this hosted manifest so camera data updates WITHOUT an app release (weekly CI
@@ -120,7 +120,7 @@ android {
             "String",
             "FLOCK_MANIFEST_URL",
             "\"${(project.findProperty("flockManifestUrl") as String?)
-                ?: "https://github.com/PimpinPumpkin/Vela/releases/download/flock-cameras/flock-manifest.json"}\"",
+                ?: "https://github.com/kaiser-app/Vela/releases/download/flock-cameras/flock-manifest.json"}\"",
         )
         // Self-hosted map-font glyphs (Roboto composited over Noto; see ui/map/MapFonts) served
         // from the repo's GitHub Pages — same override pattern (-PmapFontsUrl=http://127.0.0.1:8099
@@ -129,7 +129,7 @@ android {
             "String",
             "MAP_FONTS_URL",
             "\"${(project.findProperty("mapFontsUrl") as String?)
-                ?: "https://pimpinpumpkin.github.io/Vela/fonts"}\"",
+                ?: "https://kaiser-app.github.io/Vela/fonts"}\"",
         )
     }
 

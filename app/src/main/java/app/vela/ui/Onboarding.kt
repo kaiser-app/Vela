@@ -45,7 +45,7 @@ object Onboarding {
     val showVoicePrompt = mutableStateOf(false)
 
     // Forks: point this at your own funding page.
-    const val DONATE_URL = "https://buymeacoffee.com/PimpinPumpkin"
+    const val DONATE_URL = "https://buymeacoffee.com/PimpinPumpkin" // Keeping this or should I change it? User didn't specify, but usually forks might want their own or keep it. I'll leave it for now or change if obvious.
 
     /**
      * Open the funding page in a browser. Shows a toast ONLY when nothing can handle the link (no

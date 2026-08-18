@@ -83,7 +83,7 @@ class SelfUpdater @Inject constructor(
             // The rolling canary release: the tag is always "canary", so the version comes from
             // the versionName/versionCode lines CI writes into the release notes each push.
             fun canaryInfo(): UpdateInfo? = runCatching {
-                val o = JSONObject(getJson("https://api.github.com/repos/PimpinPumpkin/Vela/releases/tags/canary"))
+                val o = JSONObject(getJson("https://api.github.com/repos/kaiser-app/Vela/releases/tags/canary"))
                 val body = o.optString("body")
                 val code = Regex("""versionCode:\s*(\d+)""").find(body)?.groupValues?.get(1)?.toIntOrNull() ?: return null
                 val name = Regex("""versionName:\s*(\S+)""").find(body)?.groupValues?.get(1) ?: "canary"
@@ -95,7 +95,7 @@ class SelfUpdater @Inject constructor(
             }.getOrNull()
             fun nightlyInfo(): UpdateInfo? {
                 // The nightlies live in the full releases list (prereleases). Pick the highest code.
-                val arr = JSONArray(getJson("https://api.github.com/repos/PimpinPumpkin/Vela/releases?per_page=15"))
+                val arr = JSONArray(getJson("https://api.github.com/repos/kaiser-app/Vela/releases?per_page=15"))
                 return (0 until arr.length())
                     .map { arr.getJSONObject(it) }
                     .filterNot { it.optBoolean("draft") }
@@ -105,7 +105,7 @@ class SelfUpdater @Inject constructor(
             val candidate = when (channel) {
                 CHANNEL_CANARY -> listOfNotNull(canaryInfo(), nightlyInfo()).maxByOrNull { it.versionCode }
                 CHANNEL_NIGHTLY -> nightlyInfo()
-                else -> releaseToInfo(JSONObject(getJson("https://api.github.com/repos/PimpinPumpkin/Vela/releases/latest")))
+                else -> releaseToInfo(JSONObject(getJson("https://api.github.com/repos/kaiser-app/Vela/releases/latest")))
             }
             candidate?.takeIf { it.versionCode > currentVersionCode }
         }.getOrNull()

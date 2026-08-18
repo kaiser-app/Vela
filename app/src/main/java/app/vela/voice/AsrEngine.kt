@@ -6,7 +6,7 @@ import java.io.File
 // File-level consts: enum entries are initialized BEFORE the companion object, so the constructor
 // can't read companion members - these must live at file scope. [AsrEngine.VAD] re-exports VAD_FILE
 // for callers outside this file.
-private const val ASR_BASE = "https://github.com/PimpinPumpkin/Vela/releases/download/asr-models"
+private const val ASR_BASE = "https://github.com/kaiser-app/Vela/releases/download/asr-models"
 private const val VAD_FILE = "silero_vad.onnx"
 
 /**

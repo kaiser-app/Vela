@@ -17,7 +17,7 @@ import java.net.URLEncoder
  * whole feature down; the caller only sees a failure when EVERY endpoint is unreachable.
  */
 object OverpassEndpoints {
-    private const val USER_AGENT = "VelaMaps/0.1 (+https://github.com/PimpinPumpkin/Vela)"
+    private const val USER_AGENT = "VelaMaps/0.1 (+https://github.com/kaiser-app/Vela)"
 
     /** Primary first, then community mirrors. Order is preference; each is tried until one answers 2xx.
      *  All speak the same Overpass QL, so the query string is endpoint-agnostic. */

@@ -38,7 +38,7 @@ internal fun DataPrivacySettingsScreen(vm: app.vela.ui.map.MapViewModel, onBack:
                     context.startActivity(
                         android.content.Intent(
                             android.content.Intent.ACTION_VIEW,
-                            android.net.Uri.parse("https://github.com/PimpinPumpkin/Vela/blob/main/PRIVACY.md"),
+                            android.net.Uri.parse("https://github.com/kaiser-app/Vela/blob/main/PRIVACY.md"),
                         ).addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK),
                     )
                 }

@@ -9,7 +9,7 @@ Paste this one line as the repository address - the official F-Droid client,
 Droid-ify and Neo Store all accept it and pick up the fingerprint automatically:
 
 ```
-https://pimpinpumpkin.github.io/Vela/repo?fingerprint=F374920F2F5F38D7508D0B042125B8EAF23CF0F06FA7490280FB77115BB091DE
+https://kaiser-app.github.io/Vela/repo?fingerprint=F374920F2F5F38D7508D0B042125B8EAF23CF0F06FA7490280FB77115BB091DE
 ```
 
 (In your client: **Settings → Repositories → Add repository**, paste, refresh,
@@ -20,7 +20,7 @@ If your client wants the address and fingerprint separately, use:
 - Address:
 
   ```
-  https://pimpinpumpkin.github.io/Vela/repo
+  https://kaiser-app.github.io/Vela/repo
   ```
 
 - Fingerprint:
