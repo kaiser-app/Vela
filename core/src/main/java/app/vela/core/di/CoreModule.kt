@@ -8,6 +8,8 @@ import app.vela.core.data.OfflineRouteEngine
 import app.vela.core.data.MapDataSource
 import app.vela.core.data.MockMapDataSource
 import app.vela.core.data.RouteEngine
+import app.vela.core.data.ai.AiService
+import app.vela.core.data.ai.GeminiAiService
 import app.vela.core.data.google.GoogleMapsDataSource
 import dagger.Module
 import dagger.Provides
@@ -75,19 +77,16 @@ object CoreModule {
             ObfRouteEngine(File(context.filesDir, "obf")),
             GraphHopperRouteEngine(File(context.filesDir, "graphs")),
         )
+
+    @Provides
+    @Singleton
+    fun aiService(gemini: GeminiAiService): AiService = gemini
 }
 
 /**
  * Minimal per-host cookie store so session cookies from the bootstrap GET ride
  * along on later requests — enough to behave like one browser. Deliberately
  * tiny; swap for a persistent jar if cookies need to survive process death.
- *
- * Pre-seeds Google's **consent** cookies (`SOCS` + `CONSENT`) for google.com so a
- * fresh, cookieless session in the EU/EEA isn't bounced to the
- * `consent.google.com` interstitial before search/directions can run. US sessions
- * are unaffected. Best-effort and the lightest-touch bypass — if Google overwrites
- * `CONSENT` with a `PENDING` value, a consent-redirect could still occur; the full
- * form-POST handshake is the follow-up if reports show the wall persisting.
  */
 private class InMemoryCookieJar : CookieJar {
     private val store = HashMap<String, List<Cookie>>()

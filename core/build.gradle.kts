@@ -55,6 +55,7 @@ dependencies {
     implementation("commons-logging:commons-logging:1.2")
 
     implementation(libs.hilt.android)
+    implementation(libs.google.generativeai)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)

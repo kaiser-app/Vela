@@ -122,7 +122,7 @@ There's also a one-page tour at
   config the app checks at launch - when Google shifts a field or an endpoint, a
   repair ships to every install in minutes, no update needed. The same channel can
   push a heads-up notice ("search is down, fix coming") straight onto the map. See [`docs/CALIBRATION.md`](docs/CALIBRATION.md): for details.
-- **The rest.** Android Auto, 15 languages,
+- **The rest.** Android Auto, 16 languages,
   in-app light/dark, full D-pad operation for keypad phones, place lists, and a
   built-in updater with weekly-stable or nightly channels.
 

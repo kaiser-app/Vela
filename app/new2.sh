@@ -1,2 +1,2 @@
-    git config --global user.email "email@példa.com"
+    git config --global user.email "kaiser.zsolt.laszlo@gmail.com"
     

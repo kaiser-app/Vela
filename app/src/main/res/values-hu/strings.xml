@@ -1,30 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    NA-VIGATOR — magyar UI fordítás (teljes, az összes fordítható kulcsra).
-
-    Amit ez a fájl NEM tartalmaz, és miért:
-      - a `translatable="false"` jelölésű kulcsok (pl. shortcut_home, softkey
-        hardver-specifikus stringek, kamera-funkciók feliratai) — ezek
-        szándékosan mindig az alapértelmezett (angol) `values/strings.xml`
-        értéket használják, nyelvtől függetlenül, úgyhogy itt nincs is
-        értelme megismételni őket.
-
-    Amit ez a fájl NEM fed le, mert külön rendszer (lásd docs/LANGUAGES.md):
-      - a `NavStrings` hangos útvonalvezetési nyelvtani sablonok
-        (core/i18n) — a kimondott utasítások ("fordulj jobbra a Fő
-        utcára") egyelőre angolul hangzanak el akkor is, ha az UI magyar
-      - Piper magyar neurális hang — a `PiperCatalog`-ban nincs "hu"
-        bejegyzés, tehát nincs letölthető on-device magyar hang sem
-      - a nyitva/zárva-állapot kulcsszavak és a tranzit-kategória szavak
-        (SearchParser / kalibráció), amik a Google-től jövő magyar
-        szöveget értelmezik
-
-    Ez a három pont a fordítási munka nagyobbik, kód-szintű fele — nem sima
-    string-csere, hanem logika és nyelvtani generálás. Külön fázisként
-    kezelendő.
--->
 <resources>
-    <!-- kereső-kategória chip-ek -->
+    <!-- shared search-category chip labels -->
     <string name="cat_restaurants">Éttermek</string>
     <string name="cat_coffee">Kávé</string>
     <string name="cat_gas">Benzinkút</string>
@@ -44,10 +20,10 @@
     <string name="settings_follow_system">Rendszerbeállítás követése</string>
     <string name="settings_theme_light">Világos</string>
     <string name="settings_theme_dark">Sötét</string>
-    <string name="settings_appearance_hint">Csak a NA-VIGATOR-ra vonatkozik.</string>
+    <string name="settings_appearance_hint">Csak a Velára vonatkozik.</string>
     <string name="settings_app_name_title">Alkalmazásnév</string>
-    <string name="settings_app_name_generic">Csak „Navigátor” néven</string>
-    <string name="settings_app_name_generic_hint">A launcher ikonon egyszerűen „Navigátor” jelenik meg „NA-VIGATOR” helyett. Váltás után újra hozzá kell adnod a kezdőképernyő-parancsikont.</string>
+    <string name="settings_app_name_generic">Hívd egyszerűen „Térképek”-nek</string>
+    <string name="settings_app_name_generic_hint">A launcher ikonon „Vela” helyett „Térképek” jelenik meg a gyári megjelenés érdekében. A váltás után lehet, hogy újra hozzá kell adnod a parancsikont a kezdőképernyőhöz.</string>
     <string name="settings_dynamic_color">Material You színek</string>
     <string name="settings_dynamic_color_hint">A gombokat és kiemeléseket a háttérképedhez igazítja. A térkép semleges marad.</string>
     <string name="settings_map_style">Térképstílus</string>
@@ -71,7 +47,7 @@
     <string name="settings_voice_none_hint">Még nincs hang. Nyisd meg lent a Hangkönyvtárat, hogy letölts egy természetes, telefonon futó hangot (fiók nélkül, valós időben régi telefonokon is). A telepített rendszer TTS-motorok is itt jelennek meg választható opcióként.</string>
     <string name="settings_voice_test">Hang tesztelése</string>
     <string name="settings_voice_system_settings">Rendszer hangbeállítások</string>
-    <string name="settings_voice_test_hint">Koppints a Hang tesztelésére, hogy halld. A NA-VIGATOR Hang ajánlott; bármelyik telepített szövegfelolvasó motorra átválthatsz.</string>
+    <string name="settings_voice_test_hint">Koppints a Hang tesztelésére, hogy halld. A Vela Hang ajánlott; bármelyik telepített szövegfelolvasó motorra átválthatsz.</string>
     <string name="settings_voice_library">Hangkönyvtár</string>
     <string name="settings_voice_advanced">Speciális hangbeállítások</string>
     <string name="settings_voice_try_label">Próbáld ki a hangot bármilyen szövegen</string>
@@ -94,8 +70,8 @@
     <string name="settings_vibrate_hint">Iránykódolt rezgés minden kanyarnál, balra és jobbra eltérő mintázattal, hogy tapintással is követhesd az útvonalat. Közlekedési módonként külön állítható (pl. kerékpáron/gyaloglásnál be, autózásnál ki).</string>
     <string name="settings_keep_screen_on">Képernyő ébren tartása navigáció közben</string>
     <string name="settings_keep_screen_on_hint">Ébren tartja a képernyőt útvonalvezetés közben.</string>
-    <string name="map_voice_downloading">NA-VIGATOR Hang letöltése · %1$d%%</string>
-    <string name="map_voice_installing">NA-VIGATOR Hang telepítése…</string>
+    <string name="map_voice_downloading">Vela Hang letöltése · %1$d%%</string>
+    <string name="map_voice_installing">Vela Hang telepítése…</string>
     <string name="map_region_downloading">%1$s útvonaltervezési adat letöltése · %2$d%%</string>
     <string name="map_region_places_downloading">%1$s helyek mentése offline kereséshez · %2$d%%</string>
     <string name="mapvm_poipack_ready">A(z) %1$s helyei mostantól offline is kereshetők</string>
@@ -114,7 +90,7 @@
     <string name="settings_speed_cams">Traffipaxok</string>
     <string name="settings_speed_cams_hint">Az OpenStreetMap-ben térképezett fix radarokat és traffipaxokat jeleníti meg. Csak fix telepítések; a lefedettség a térképet követi, Európában a legerősebb. Alapból kikapcsolva.</string>
     <string name="settings_read_all_reviews">„Összes vélemény elolvasása” gomb</string>
-    <string name="settings_read_all_reviews_hint">Hozzáad egy „Összes vélemény elolvasása” gombot, ami megnyitja a Google teljes véleményoldalát az appon belül, minden véleménnyel. Ki = csak a NA-VIGATOR saját véleménylistája.</string>
+    <string name="settings_read_all_reviews_hint">Hozzáad egy „Összes vélemény elolvasása” gombot, ami megnyitja a Google teljes véleményoldalát az appon belül, minden véleménnyel. Ki = csak a Vela saját véleménylistája.</string>
     <string name="settings_buildings_3d">3D épületek</string>
     <string name="settings_buildings_3d_hint">Kiemelt épületek közeli nagyításnál. Kikapcsolása simábbá teheti a mozgatást régebbi telefonokon.</string>
     <string name="settings_building_overlay">Hiányzó épületek kitöltése</string>
@@ -125,13 +101,13 @@
     <string name="settings_nav_trace_hint">Rögzíti, hogyan mozog a térkép kamerája navigáció közben, hogy egy szaggatott vagy imbolygó térkép diagnosztizálható legyen. Nem tartalmaz helyadatot, csak irányokat, sebességeket és időzítéseket, ezért biztonságosan csatolható egy hibajelentéshez.</string>
     <string name="settings_nav_trace_export">Nav-nyomkövetés megosztása</string>
     <string name="settings_nav_trace_empty">Még nincs rögzített nyomkövetés. Navigálj valahová először.</string>
-    <string name="settings_voice_vela_name">NA-VIGATOR hang (%1$s)</string>
-    <string name="settings_voice_install_vela">A NA-VIGATOR hang telepítése (%1$d MB)</string>
+    <string name="settings_voice_vela_name">Vela hang (%1$s)</string>
+    <string name="settings_voice_install_vela">A Vela hang telepítése (%1$d MB)</string>
     <string name="settings_voice_install_vela_hint">Az ajánlott navigációs hang. Bármikor újratelepítheted itt, ha eltűnne vagy a letöltés sikertelen lenne.</string>
     <string name="settings_texture_render">Kompatibilitási megjelenítés</string>
     <string name="settings_texture_render_hint">A térképet egy kompatibilitási úton rajzolja ki, ami elkerül bizonyos eszközök grafikai driver-hibáit. Magától bekapcsol, ha a térkép induláskor összeomlasztotta az appot. Kicsit lassabb; az alkalmazás újraindítása szükséges hozzá.</string>
     <string name="settings_show_reviews">Vélemények megjelenítése</string>
-    <string name="settings_show_reviews_hint">Ki = a helyoldalak nem mutatnak véleményeket, és a NA-VIGATOR soha nem is tölti le őket.</string>
+    <string name="settings_show_reviews_hint">Ki = a helyoldalak nem mutatnak véleményeket, és a Vela soha nem is tölti le őket.</string>
     <string name="settings_load_photos">Fotók betöltése</string>
     <string name="settings_load_photos_hint">Ki = a helyoldalak nem mutatnak fotókat, és semmi nem töltődik le hozzájuk. Adatot takarít meg.</string>
     <string name="settings_hide_adult">Felnőtt kategóriák elrejtése</string>
@@ -171,7 +147,7 @@
     <string name="settings_export">Exportálás</string>
     <string name="settings_import">Importálás</string>
     <string name="settings_data_privacy">Adatforrás és adatvédelem</string>
-    <string name="settings_data_privacy_hint">A NA-VIGATOR közvetlenül erről az eszközről beszél a Google nyilvános végpontjaival: nincs háttérrendszer, nincs fiók, nincs API-kulcs. A Google látja az IP-címedet, a keresésedet és a térképterületet, de nem tudja, ki vagy.</string>
+    <string name="settings_data_privacy_hint">A Vela közvetlenül erről az eszközről beszél a Google nyilvános végpontjaival: nincs háttérrendszer, nincs fiók, nincs API-kulcs. A Google látja az IP-címedet, a keresésedet és a térképterületet, de nem tudja, ki vagy.</string>
     <string name="settings_map_places">Helyek a térképen</string>
     <string name="settings_show_pois">Helyek megjelenítése</string>
     <string name="settings_show_pois_hint">Üzlet- és helyikonok a böngésző térképen. Ki = tiszta térkép; a keresett helyek továbbra is megjelennek.</string>
@@ -185,10 +161,10 @@
     <string name="settings_poi_size_large">Nagy</string>
     <string name="settings_poi_icon_size_hint">A kicsi jól illik alacsony felbontású kijelzőkhöz, mint pl. autós fejegységek, ahol az alapértelmezett ikonok túl nagynak tűnnek.</string>
     <string name="settings_live_rechecks">Élő forgalmi újraellenőrzés navigáció közben</string>
-    <string name="settings_live_rechecks_hint">Vezetés közben néhány percenként a NA-VIGATOR friss forgalmi adatot kér a Google-től a jelenlegi helyzetedről. Ez teszi lehetővé a gyorsabb útvonal ajánlását és az élő érkezési időt, de a Google-nek is elárulja, hol tartasz az útvonalon. Kikapcsolva: az útvonal továbbra is újratervezésre kerül, ha letérsz róla.</string>
+    <string name="settings_live_rechecks_hint">Vezetés közben néhány percenként a Vela friss forgalmi adatot kér a Google-től a jelenlegi helyzetedről. Ez teszi lehetővé a gyorsabb útvonal ajánlását és az élő érkezési időt, de a Google-nek is elárulja, hol tartasz az útvonalon. Kikapcsolva: az útvonal továbbra is újratervezésre kerül, ha letérsz róla.</string>
     <string name="settings_privacy_button">Milyen adatot kap a Google</string>
     <string name="settings_diagnostics">Diagnosztika</string>
-    <string name="settings_diagnostics_hint">Alapból kikapcsolva. Bekapcsolva a NA-VIGATOR egy rövid helyi naplót vezet, amit exportálhatsz és átadhatsz egy fejlesztőnek. Semmi nem kerül feltöltésre, és a kikapcsolás törli a naplót.</string>
+    <string name="settings_diagnostics_hint">Alapból kikapcsolva. Bekapcsolva a Vela egy rövid helyi naplót vezet, amit exportálhatsz és átadhatsz egy fejlesztőnek. Semmi nem kerül feltöltésre, és a kikapcsolás törli a naplót.</string>
     <string name="settings_share_diagnostics">Diagnosztika megosztása</string>
     <string name="settings_diag_nothing">Még nincs rögzítve semmi. Használd az appot, majd exportálj.</string>
     <string name="settings_diag_export">Hibakeresési munkamenet exportálása</string>
@@ -202,24 +178,24 @@
     <string name="settings_trip_delete">Út törlése</string>
     <string name="settings_no_trips_hint">Még nincs rögzített út. Navigálj valahová ezzel bekapcsolva, és megjelenik itt visszajátszásra.</string>
     <string name="settings_trip_consent_title">Menteni szeretnéd az utazásaidat?</string>
-    <string name="settings_trip_consent_body">A NA-VIGATOR minden navigáció GPS-nyomvonalát rögzíti ezen a telefonon, hogy egy út visszajátszható legyen teszteléshez, anélkül hogy újra le kellene vezetni. Ez érzékenyebb, mint a diagnosztika (rögzíti a pontos útvonalaidat), de a telefonon marad és soha nem kerül feltöltésre. Bármikor kikapcsolhatod.</string>
+    <string name="settings_trip_consent_body">A Vela minden navigáció GPS-nyomvonalát rögzíti ezen a telefonon, hogy egy út visszajátszható legyen teszteléshez, anélkül hogy újra le kellene vezetni. Ez érzékenyebb, mint a diagnosztika (rögzíti a pontos útvonalaidat), de a telefonon marad és soha nem kerül feltöltésre. Bármikor kikapcsolhatod.</string>
     <string name="settings_turn_on">Bekapcsolás</string>
     <string name="settings_cancel">Mégse</string>
-    <string name="settings_crash_hint">A NA-VIGATOR nemrég váratlanul bezáródott. A hibajelentés (stack trace) elküldése segít kijavítani. Egy egyszerű szöveges fájl, nincs benne személyes adat.</string>
+    <string name="settings_crash_hint">A Vela nemrég váratlanul bezáródott. A hibajelentés (stack trace) elküldése segít kijavítani. Egy egyszerű szöveges fájl, nincs benne személyes adat.</string>
     <string name="settings_crash_export">Hibajelentés exportálása</string>
     <string name="settings_crash_discard">Elvetés</string>
     <string name="settings_crash_diag_offer">A diagnosztika ki van kapcsolva, így semmi nem lett rögzítve ez előtt. Kapcsold be, hogy több részletet rögzítsen, ha újra megtörténne.</string>
     <string name="settings_crash_enable_diag">Diagnosztika bekapcsolása</string>
     <string name="settings_diag_consent_title">Bekapcsolod a diagnosztikát?</string>
-    <string name="settings_diag_consent_body">A NA-VIGATOR egy rövid helyi naplót vezet a kereséseidről, útvonalaidról és a hibákról. Soha nem hagyja el a telefont, hacsak nem koppintasz az Exportálásra és választasz egy célt. Bármikor kikapcsolhatod a napló törléséhez.</string>
+    <string name="settings_diag_consent_body">A Vela egy rövid helyi naplót vezet a kereséseidről, útvonalaidról és a hibákról. Soha nem hagyja el a telefont, hacsak nem koppintasz az Exportálásra és választasz egy célt. Bármikor kikapcsolhatod a napló törléséhez.</string>
     <string name="settings_about">Névjegy</string>
-    <string name="settings_about_hint">A NA-VIGATOR egy degoogled térképkliens: nyílt csempék az alaptérképhez, lekapart Google-adat helyekhez, útvonaltervezéshez és forgalomfüggő érkezési időkhöz, AOSP TextToSpeech a hanghoz. GPLv3. Nincs szükség Play Services-re.</string>
+    <string name="settings_about_hint">A Vela egy degoogled térképkliens: nyílt csempék az alaptérképhez, lekapart Google-adat helyekhez, útvonaltervezéshez és forgalomfüggő érkezési időkhöz, AOSP TextToSpeech a hanghoz. GPLv3. Nincs szükség Play Services-re.</string>
     <string name="settings_support">Támogatás</string>
-    <string name="settings_support_hint">A NA-VIGATOR ingyenes és reklámmentes. Ha hasznosnak bizonyult, egy adomány segít fenntartani a fejlesztést. Teljesen opcionális.</string>
-    <string name="settings_support_button">NA-VIGATOR támogatása</string>
+    <string name="settings_support_hint">A Vela ingyenes és reklámmentes. Ha hasznosnak bizonyult, egy adomány segít fenntartani a fejlesztést. Teljesen opcionális.</string>
+    <string name="settings_support_button">Vela támogatása</string>
     <string name="donate_no_browser">Nincs telepített böngésző az adományozási oldal megnyitásához</string>
     <string name="settings_version">Verzió</string>
-    <string name="settings_version_line">NA-VIGATOR %1$s (build %2$d)</string>
+    <string name="settings_version_line">Vela %1$s (build %2$d)</string>
     <string name="settings_version_copied">Verzió másolva</string>
     <string name="settings_collapse">Összecsukás</string>
     <string name="settings_expand">Kibontás</string>
@@ -231,7 +207,7 @@
     <string name="settings_voice_show_less">Kevesebb megjelenítése</string>
     <string name="settings_voice_this_voice">ez a hang</string>
     <string name="settings_voice_remove_title">Eltávolítod ezt: %1$s?</string>
-    <string name="settings_voice_remove_body">Ez az egyetlen NA-VIGATOR hangod. A hangos útvonalvezetés egy rendszer szövegfelolvasóra vált vissza (vagy elnémul, ha nincs telepítve egy sem), amíg le nem töltesz egy másikat.</string>
+    <string name="settings_voice_remove_body">Ez az egyetlen Vela hangod. A hangos útvonalvezetés egy rendszer szövegfelolvasóra vált vissza (vagy elnémul, ha nincs telepítve egy sem), amíg le nem töltesz egy másikat.</string>
     <string name="settings_voice_remove">Eltávolítás</string>
     <string name="settings_voice_gender_female">Női</string>
     <string name="settings_voice_gender_male">Férfi</string>
@@ -316,6 +292,7 @@
     <string name="place_sort_highest">Legmagasabb értékelés</string>
     <string name="place_sort_lowest">Legalacsonyabb értékelés</string>
     <plurals name="place_review_count">
+        <item quantity="one">%1$d vélemény</item>
         <item quantity="other">%1$d vélemény</item>
     </plurals>
     <string name="place_all_n_reviews">Mind a %1$d vélemény · rendezés és keresés</string>
@@ -331,6 +308,9 @@
     <string name="place_no_reviews_mention">Egyetlen vélemény sem említi ezt: „%1$s” (a betöltött %2$d közül keresve).</string>
     <string name="place_back">Vissza</string>
     <string name="place_street_view">Utcakép</string>
+    <string name="place_ask_ai">Kérdezz a Velától</string>
+    <string name="place_ai_loading">A Vela AI gondolkodik…</string>
+    <string name="place_ai_error">Az AI nem tudott válaszolni. Ellenőrizd az API kulcsod.</string>
     <string name="street_view_none">Itt nincs Utcakép-felvétel</string>
     <string name="street_view_move">Mozgás ide</string>
     <string name="street_view_dates">Más dátumok megtekintése</string>
@@ -362,6 +342,7 @@
     <string name="mapscreen_search_this_area">Keresés ezen a területen</string>
     <string name="mapscreen_place">Hely</string>
     <string name="mapscreen_your_location">A helyzeted</string>
+    <string name="mapscreen_your_destination">a célod</string>
     <string name="mapscreen_choose_on_map">Kiválasztás a térképen</string>
     <string name="mapscreen_choose_origin_hint">Mozgasd a térképet a kiindulópont beállításához</string>
     <string name="mapscreen_choose_stop_hint">Mozgasd a térképet a megálló beállításához</string>
@@ -381,6 +362,7 @@
     <string name="mapscreen_heads_up">Figyelem</string>
     <string name="mapscreen_dismiss">Elvetés</string>
     <plurals name="mapscreen_results_count">
+        <item quantity="one">%1$d találat</item>
         <item quantity="other">%1$d találat</item>
     </plurals>
     <string name="mapscreen_shrink_list">Lista összecsukása</string>
@@ -422,15 +404,14 @@
     <string name="mapscreen_switch">Váltás</string>
     <string name="mapscreen_resume_nav">Folytatod a navigációt ide: %1$s?</string>
     <string name="mapscreen_resume">Folytatás</string>
-    <string name="mapscreen_your_destination">a célod</string>
 
     <!-- root: VelaRoot.kt -->
     <string name="root_not_now">Most nem</string>
     <string name="root_voice_title">Hangos navigációs hang</string>
-    <string name="root_voice_body_intro">A NA-VIGATOR saját hangja teljesen a telefonodon fut: természetes hangos útvonalvezetés, fiók nélkül, külön app nélkül. Ajánlott, egyszeri %1$d MB-os letöltés.</string>
+    <string name="root_voice_body_intro">A Vela saját hangja teljesen a telefonodon fut: természetes hangos útvonalvezetés, fiók nélkül, külön app nélkül. Ajánlott, egyszeri %1$d MB-os letöltés.</string>
     <string name="root_voice_body_system">Nem szeretnéd? Használj egy már a telefonodon lévő hangot.</string>
     <string name="root_voice_body_outro">Bármikor módosíthatod a Beállítások → Hang menüben.</string>
-    <string name="root_voice_download">NA-VIGATOR Hang letöltése</string>
+    <string name="root_voice_download">Vela Hang letöltése</string>
     <string name="root_voice_use_system">Rendszerhang használata</string>
 
     <!-- nav: NavOverlays.kt -->
@@ -464,9 +445,9 @@
     <string name="welcome_feature_open_source_title">Ingyenes és nyílt forráskódú</string>
     <string name="welcome_feature_open_source_body">GPLv3, GrapheneOS-hez és más degoogled telefonokhoz készült.</string>
     <string name="welcome_get_started">Kezdjük</string>
-    <string name="welcome_donate_title">Tetszik a NA-VIGATOR?</string>
-    <string name="welcome_donate_body">A NA-VIGATOR ingyenes és reklámmentes, szűkös keretből épül. Ha hasznosnak bizonyult, egy kis egyszeri adomány segít fenntartani. Teljesen opcionális, és csak most kérdezzük meg. A Beállítások menüben mindig van egy Támogatás pont is.</string>
-    <string name="welcome_donate_confirm">NA-VIGATOR támogatása</string>
+    <string name="welcome_donate_title">Tetszik a Vela?</string>
+    <string name="welcome_donate_body">A Vela ingyenes és reklámmentes, szűkös keretből épül. Ha hasznosnak bizonyult, egy kis egyszeri adomány segít fenntartani. Teljesen opcionális, és csak most kérdezzük meg. A Beállítások menüben mindig van egy Támogatás pont is.</string>
+    <string name="welcome_donate_confirm">Vela támogatása</string>
     <string name="welcome_donate_dismiss">Talán később</string>
 
     <!-- search: SearchBar.kt -->
@@ -502,15 +483,15 @@
     <string name="mapvm_resume_failed">Nem sikerült folytatni a navigációt</string>
     <string name="mapvm_no_track_to_replay">Ahhoz az úthoz nincs visszajátszható nyomvonal</string>
     <string name="mapvm_replaying">%1$s visszajátszása (3×)…</string>
-    <string name="mapvm_export_saved_subject">NA-VIGATOR mentett helyek (%1$d)</string>
+    <string name="mapvm_export_saved_subject">Vela mentett helyek (%1$d)</string>
     <string name="mapvm_export_saved_chooser">Mentett helyek exportálása</string>
-    <string name="mapvm_export_trip_subject">NA-VIGATOR út: %1$s (%2$d pont)</string>
+    <string name="mapvm_export_trip_subject">Vela út: %1$s (%2$d pont)</string>
     <string name="mapvm_share_trip_chooser">Út megosztása</string>
     <string name="mapvm_voice_sample">400 méter múlva fordulj jobbra a Fő utcára.</string>
     <string name="mapvm_not_enough_space">Nincs elég szabad hely ehhez: %1$s (%2$d MB)</string>
     <string name="mapvm_voice_downloaded">%1$s letöltve</string>
     <string name="mapvm_voice_download_failed">%1$s letöltése sikertelen</string>
-    <string name="mapvm_vela_voice_removed">NA-VIGATOR Hang eltávolítva</string>
+    <string name="mapvm_vela_voice_removed">Vela Hang eltávolítva</string>
     <string name="mapvm_opening_installer">Telepítő megnyitása ehhez: %1$s…</string>
     <string name="mapvm_pan_to_area_first">Nyisd meg a térképet és mozogj egy területre először</string>
     <string name="mapvm_offline_routing_ready">Offline útvonaltervezés kész: %1$s</string>
@@ -531,14 +512,14 @@
     <string name="navservice_channel_turns_name">Hangos kanyar-figyelmeztetések</string>
     <string name="navservice_notif_eta">Érkezés: %1$s</string>
 
-    <string name="update_available_title">Elérhető a NA-VIGATOR %1$s</string>
+    <string name="update_available_title">Elérhető a Vela %1$s</string>
     <string name="update_downloading">Letöltés… %1$d%%</string>
     <string name="update_later">Most nem</string>
     <string name="update_install">Frissítés</string>
     <string name="update_download_failed">A frissítés letöltése sikertelen. Próbáld újra később.</string>
     <string name="download_notif_channel">Letöltések</string>
     <string name="download_notif_title">%1$s letöltése</string>
-    <string name="download_label_update">NA-VIGATOR frissítés</string>
+    <string name="download_label_update">Vela frissítés</string>
     <string name="download_label_map_data">térképadat</string>
     <string name="download_label_offline_places">offline helyek</string>
     <string name="map_area_downloading">Ez a terület mentése offline használatra · %1$d%%</string>
@@ -552,6 +533,7 @@
     <string name="settings_update_none">A legfrissebb verziót használod.</string>
     <string name="settings_place_pages">Helyoldalak</string>
     <plurals name="place_transit_stops">
+        <item quantity="one">%1$d megálló</item>
         <item quantity="other">%1$d megálló</item>
     </plurals>
     <string name="place_transit_stop_id">%1$s megálló</string>
@@ -636,13 +618,13 @@
     <string name="settings_voice_volume_normal">Normál</string>
     <string name="settings_voice_volume_louder">Hangosabb</string>
     <string name="settings_voice_volume_loudest">Leghangosabb</string>
-    <string name="settings_voice_volume_hint">Milyen hangosan szól a hangos útvonalvezetés a médialejátszás felett. A hangosabb szintek csak a NA-VIGATOR hangra vonatkoznak; a rendszerhangok csak halkíthatók.</string>
+    <string name="settings_voice_volume_hint">Milyen hangosan szól a hangos útvonalvezetés a médialejátszás felett. A hangosabb szintek csak a Vela hangra vonatkoznak; a rendszerhangok csak halkíthatók.</string>
     <string name="place_avoid_not_honored">A díjköteles utak és autópályák elkerüléséhez offline régió szükséges ehhez az úthoz. Ezek az útvonalak még használhatják őket.</string>
     <string name="settings_lists_export_hint">Mentsd el a listáidat egy fájlba, vagy állítsd vissza egy másik eszközön.</string>
     <string name="settings_lists_imported">%1$d lista importálva</string>
     <string name="settings_places_imported">%1$d hely importálva</string>
     <string name="settings_no_lists">Még nincs exportálandó lista</string>
-    <string name="mapvm_export_lists_subject">NA-VIGATOR listák (%1$d)</string>
+    <string name="mapvm_export_lists_subject">Vela listák (%1$d)</string>
     <string name="mapvm_export_lists_chooser">Listák exportálása</string>
     <string name="lists_empty_hint">Még nincs lista. Koppints az Újra egy létrehozásához, vagy ments el egy helyet az oldaláról.</string>
     <string name="lists_place_count">%1$d hely</string>
@@ -652,16 +634,16 @@
     <string name="settings_developer">Fejlesztői</string>
     <string name="settings_developer_hint">Eszközök bemutatókhoz, képernyőképekhez és teszteléshez. Valódi használathoz kapcsold ki mindet.</string>
     <string name="settings_browse_voices">Hangok böngészése</string>
-    <string name="settings_browse_voices_hint">Töltsd le és válts a NA-VIGATOR on-device hangjai között.</string>
+    <string name="settings_browse_voices_hint">Töltsd le és válts a Vela on-device hangjai között.</string>
     <string name="voice_capture_listening">Hallgatás…</string>
     <string name="voice_capture_starting">Előkészítés…</string>
     <string name="voice_capture_done">Kész</string>
-    <string name="mapvm_asr_ready">A NA-VIGATOR Hang készen áll</string>
+    <string name="mapvm_asr_ready">A Vela Hang készen áll</string>
     <string name="mapvm_asr_download_failed">Nem sikerült letölteni a hangmodellt. Ellenőrizd a kapcsolatot és próbáld újra.</string>
     <string name="mapvm_closing_soon">%1$s ekkor zár: %2$s, te pedig kb. %3$s körül érkezel</string>
     <string name="mapvm_closing_before_arrival">%1$s ekkor zár: %2$s, mielőtt kb. %3$s körül megérkeznél</string>
-    <string name="settings_voice_search_model">NA-VIGATOR Hang</string>
-    <string name="settings_voice_search_model_hint">A NA-VIGATOR Hang beszédet alakít kereséssé közvetlenül a telefonodon: nincs szükség másik appra, és semmi nem kerül feltöltésre. Egyszeri %1$d MB-os letöltés.</string>
+    <string name="settings_voice_search_model">Vela Hang</string>
+    <string name="settings_voice_search_model_hint">A Vela Hang beszédet alakít kereséssé közvetlenül a telefonodon: nincs szükség másik appra, és semmi nem kerül feltöltésre. Egyszeri %1$d MB-os letöltés.</string>
     <string name="settings_voice_search_download">Letöltés (%1$d MB)</string>
     <string name="settings_voice_search_remove">Eltávolítás</string>
     <string name="settings_voice_search_downloading">Letöltés… %1$d%%</string>
@@ -669,25 +651,25 @@
     <string name="settings_asr_engines_title">On-device felismerő motor</string>
     <string name="settings_asr_engines_hint">A beszéd közvetlenül a telefonodon válik kereséssé: nincs szükség másik appra, és semmi nem kerül feltöltésre. Tölts le egy vagy több motort, és válaszd ki, melyiket használja a mikrofon.</string>
     <string name="settings_asr_engine_meta">%1$s · %2$d MB</string>
-    <string name="settings_asr_langs_whisper">Minden nyelv, amit a NA-VIGATOR támogat</string>
+    <string name="settings_asr_langs_whisper">Minden nyelv, amit a Vela támogat</string>
     <string name="settings_asr_langs_sensevoice">Angol, kínai, japán, koreai, kantoni</string>
     <string name="settings_asr_langs_moonshine">Csak angol</string>
     <string name="settings_asr_active">Aktív</string>
     <string name="settings_asr_use">Használat</string>
     <string name="settings_voice_search_engine_title">Amikor a mikrofonra koppintasz</string>
-    <string name="settings_voice_search_engine_auto">NA-VIGATOR Hang</string>
+    <string name="settings_voice_search_engine_auto">Vela Hang</string>
     <string name="settings_voice_search_engine_default">Android alapértelmezett</string>
     <string name="settings_voice_search_engine_system">Másik hangalkalmazás</string>
     <string name="map_asr_offer_title">Hangkeresés</string>
-    <string name="map_asr_offer_body">Töltsd le a NA-VIGATOR Hangot, hogy hangosan kereshess. Teljesen a telefonodon fut, és semmit nem tölt fel.</string>
-    <string name="map_asr_downloading">NA-VIGATOR Hang mikrofon letöltése · %1$d%%</string>
-    <string name="map_asr_installing">NA-VIGATOR Hang mikrofon telepítése…</string>
-    <string name="map_asr_waiting">NA-VIGATOR Hang mikrofon · a hangra vár</string>
+    <string name="map_asr_offer_body">Töltsd le a Vela Hangot, hogy hangosan kereshess. Teljesen a telefonodon fut, és semmit nem tölt fel.</string>
+    <string name="map_asr_downloading">Vela Hang mikrofon letöltése · %1$d%%</string>
+    <string name="map_asr_installing">Vela Hang mikrofon telepítése…</string>
+    <string name="map_asr_waiting">Vela Hang mikrofon · a hangra vár</string>
     <string name="mapscreen_filter_top_rated">4,0★</string>
     <string name="mapscreen_section_recent_searches">Legutóbbi keresések</string>
     <string name="mapscreen_clear_recent_searches">Legutóbbi keresések törlése</string>
 
-    <string name="root_diag_title">Segítenél jobbá tenni a NA-VIGATOR-t?</string>
+    <string name="root_diag_title">Segítenél jobbá tenni a Velát?</string>
     <string name="root_diag_body">Mindkettő a telefonodon marad. Semmi nem kerül elküldésre, hacsak nem exportálod. Bármikor módosíthatod a Beállításokban.</string>
     <string name="root_diag_share_title">Diagnosztika megosztása</string>
     <string name="root_diag_share_desc">A keresések, útvonalak és hibák rövid helyi naplója.</string>
@@ -700,33 +682,33 @@
     <string name="root_voice_mic_desc">Diktáld be a kereséseket gépelés nélkül. Enélkül a mikrofon a Google-t használja. Egyszeri %1$d MB-os letöltés.</string>
     <string name="root_voice_none_picked">Előbb pipálj be egy opciót, vagy válaszd a Most nem lehetőséget.</string>
     <string name="root_offline_title">Offline térképek</string>
-    <string name="root_offline_body">A NA-VIGATOR a Google-től kapja a helyeket, kereséseket és útvonalakat, így jelzés nélkül csak a letöltött területek fognak működni. Állíts be most egy területet, hogy fel legyél készülve, ha elveszíted a szolgáltatást.</string>
+    <string name="root_offline_body">A Vela a Google-től kapja a helyeket, kereséseket és útvonalakat, így jelzés nélkül csak a letöltött területek fognak működni. Állíts be most egy területet, hogy fel legyél készülve, ha elveszíted a szolgáltatást.</string>
     <string name="root_offline_setup">Offline beállítása</string>
     <string name="mapvm_stop_added">Megálló hozzáadva</string>
 
     <string name="voice_error_title">A hangkeresés nem indult el</string>
     <string name="voice_error_retry">Próbáld újra</string>
     <string name="voice_error_model">A hangmodell nem áll készen. Töltsd le újra a Beállítások → Keresés menüben.</string>
-    <string name="voice_error_permission">A NA-VIGATOR-nak mikrofon-engedélyre van szüksége a hallgatáshoz. Add meg az Android app-beállításaiban.</string>
+    <string name="voice_error_permission">A Velának mikrofon-engedélyre van szüksége a hallgatáshoz. Add meg az Android app-beállításaiban.</string>
     <string name="voice_error_vad">A hangmodell egy része hiányzik. Töltsd le újra a Beállítások → Keresés menüben.</string>
-    <string name="voice_error_audio">Ez a telefon nem tudta megnyitni a mikrofont a NA-VIGATOR-nak. Zárj be minden mást, ami hangot rögzít, és próbáld újra.</string>
+    <string name="voice_error_audio">Ez a telefon nem tudta megnyitni a mikrofont a Velának. Zárj be minden mást, ami hangot rögzít, és próbáld újra.</string>
     <string name="voice_error_recording">A felvétel váratlanul leállt. Próbáld újra.</string>
     <string name="no_browser_installed">Az eszközödön nincs böngésző telepítve</string>
 
     <!-- helyadat / értesítés engedélykérők -->
     <string name="nav_precise_title">Pontos helyzet szükséges</string>
-    <string name="nav_precise_body">Az útvonalvezetés GPS-szel követ, amihez pontos helyzet kell. A NA-VIGATOR jelenleg csak a hozzávetőleges körzetedet ismeri.</string>
+    <string name="nav_precise_body">Az útvonalvezetés GPS-szel követ, amihez pontos helyzet kell. A Vela jelenleg csak a hozzávetőleges körzetedet ismeri.</string>
     <string name="nav_precise_allow">Pontos engedélyezése</string>
     <string name="nav_precise_toast">Az útvonalvezetéshez pontos helyzet szükséges</string>
     <string name="loc_off_title">A helyadatok ki vannak kapcsolva</string>
-    <string name="loc_off_body">A NA-VIGATOR-nak nincs helyadat-hozzáférése. Engedélyezheted a rendszerbeállításokban.</string>
+    <string name="loc_off_body">A Velának nincs helyadat-hozzáférése. Engedélyezheted a rendszerbeállításokban.</string>
     <string name="loc_off_settings">Beállítások megnyitása</string>
     <string name="loc_approx_title">Hozzávetőleges helyzet</string>
-    <string name="loc_approx_body">A NA-VIGATOR csak a hozzávetőleges körzetedet ismeri, nem a pontos helyzetedet. A térkép egy tág kört mutat pont helyett, és a hangos útvonalvezetés nem fog működni. Bármikor átválthatsz pontos helyzetre.</string>
+    <string name="loc_approx_body">A Vela csak a hozzávetőleges körzetedet ismeri, nem a pontos helyzetedet. A térkép egy tág kört mutat pont helyett, és a hangos útvonalvezetés nem fog működni. Bármikor átválthatsz pontos helyzetre.</string>
     <string name="loc_approx_allow">Pontos engedélyezése</string>
     <string name="loc_approx_keep">Hozzávetőleges megtartása</string>
     <string name="notif_ask_title">Kihagyod az értesítéseket?</string>
-    <string name="notif_ask_body">A navigáció egy értesítésben tartja a következő kanyarodat, hogy az útvonalvezetés akkor is veled maradjon, ha a képernyő ki van kapcsolva, vagy másik appra váltasz. Enélkül az útvonalvezetés csak a NA-VIGATOR-on belül jelenik meg.</string>
+    <string name="notif_ask_body">A navigáció egy értesítésben tartja a következő kanyarodat, hogy az útvonalvezetés akkor is veled maradjon, ha a képernyő ki van kapcsolva, vagy másik appra váltasz. Enélkül az útvonalvezetés csak a Velán belül jelenik meg.</string>
     <string name="notif_ask_allow">Engedélyezés</string>
     <string name="notif_ask_skip">Kihagyás</string>
     <string name="place_time_past_toast">Az az időpont már elmúlt. Beállítva a mostanira.</string>
@@ -735,7 +717,7 @@
     <string name="settings_map_colors">Térkép színei</string>
     <string name="settings_map_colors_modern">Modern</string>
     <string name="settings_map_colors_classic">Klasszikus</string>
-    <string name="settings_map_colors_hint">A Modern a Google app jelenlegi palettáját követi. A Klasszikus a NA-VIGATOR korábbi kinézete: fehér utak, sárga autópályák, valódi zöldek. A kettő sötét módban különbözik leginkább jelenleg.</string>
+    <string name="settings_map_colors_hint">A Modern a Google app jelenlegi palettáját követi. A Klasszikus a Vela korábbi kinézete: fehér utak, sárga autópályák, valódi zöldek. A kettő sötét módban különbözik leginkább jelenleg.</string>
     <string name="place_avoid_tolls">Díjköteles utak elkerülése</string>
     <string name="place_avoid_highways">Autópályák elkerülése</string>
     <string name="map_satellite_toggle">Műholdas nézet</string>
@@ -743,6 +725,7 @@
     <string name="settings_layers_button">Rétegek gomb megjelenítése</string>
     <string name="settings_layers_button_hint">A térképen lévő gomb, ami vált a műholdas, forgalmi, tömegközlekedési és domborzati nézet között.</string>
     <plurals name="topcard_more_stops">
+        <item quantity="one">+%d további megálló</item>
         <item quantity="other">+%d további megálló</item>
     </plurals>
     <string name="settings_hub_appearance_sub">Téma, térképstílus, mértékegységek, nyelv</string>
@@ -753,12 +736,20 @@
     <string name="settings_hub_search_sub">Hangkeresés és beszédmodellek</string>
     <string name="settings_hub_offline_sub">Offline térképek, útvonaltervezés, helyek</string>
     <string name="settings_hub_saved_sub">Helyeid exportálása és importálása</string>
-    <string name="settings_hub_privacy_sub">Hogyan kezeli a NA-VIGATOR az adataidat</string>
+    <string name="settings_hub_privacy_sub">Hogyan kezeli a Vela az adataidat</string>
     <string name="settings_hub_diagnostics_sub">Hibajelentések, utak, kompatibilitás</string>
     <string name="settings_hub_about_sub">Verzió, frissítések, támogatás</string>
     <string name="settings_theme_amoled">AMOLED fekete</string>
     <string name="settings_traffic_lights">Közlekedési lámpa útmutatás</string>
     <string name="settings_traffic_lights_hint">Hangos tereptárgy-jelzések: menj el a lámpa mellett, aztán kanyarodj. Csak angolul, alapból kikapcsolva.</string>
+
+    <!-- D-pad / softkey strings -->
+    <string name="settings_softkeys">Hardveres funkciógombok</string>
+    <string name="settings_softkeys_hint">A térkép nagyítása a telefon két funkciógombjával. Csak nyomógombos telefonokhoz.</string>
+    <string name="settings_softkeys_calibrate">Funkciógombok kalibrálása</string>
+    <string name="settings_softkeys_calibrate_hint">Ha a funkciógombok nem nagyítanak, koppints ide, majd nyomd meg a bal, aztán a jobb funkciógombot, hogy a Vela megtanulja a kódjaikat.</string>
+    <string name="map_zoom_mode_hint">Nagyítás: ◀ ki · be ▶ VISSZA a kilépéshez</string>
+    <string name="map_move_mode_hint">Mozgatás: ◀ ▲ ▼ ▶ VISSZA a kilépéshez</string>
     <string name="softkey_options">Beállítások</string>
     <string name="softkey_search">Keresés</string>
     <string name="softkey_move_map">Térkép mozgatása</string>
@@ -766,4 +757,5 @@
     <string name="softkey_recenter">Középre</string>
     <string name="softkey_mute">Némítás</string>
     <string name="softkey_unmute">Némítás kikapcsolása</string>
+    <string name="softkey_zoom_menu">Nagyítás (◀ − ▶ +)</string>
 </resources>

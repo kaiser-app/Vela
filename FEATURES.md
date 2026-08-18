@@ -1472,6 +1472,12 @@ Status legend: ✅ done · 🟡 partial / in progress · ⬜ planned
 - ⬜ Per-minute **predictive** future-traffic ETA (login/app-only - keyless gives the typical *range* only, see Depart/arrive time above); avoid tolls/highways
 - ⬜ Self-hosted routing backend (replace the FOSSGIS community server)
 
+- ✅ **Hungarian (Magyar): the 16th language (2026-08-17).** Full Hungarian support
+  across all layers: UI translation (~530 strings), generated spoken navigation templates
+  (`HuNavStrings`), localized Google POI content (opening hours, status keywords like
+  "Nyitva"/"Zárva"), and a recommended neural voice (**Anna**) in the Voice library.
+  Hungarian is also supported in the on-device Whisper dictation engine for voice search.
+
 ## Navigation
 - ✅ **The nav puck glides on kinked road geometry (2026-07-25).** The drawn position is a real
   boxcar average across a speed-scaled along-route window and the arrow's heading is the chord

@@ -1807,6 +1807,97 @@ object HeNavStrings : NavStrings {
     // expandForSpeech is left as the interface default (identity) — Hebrew road names are read natively.
 }
 
+/** Hungarian (Magyar) */
+object HuNavStrings : NavStrings {
+    override val locale: Locale = Locale("hu", "HU")
+
+    private fun modWord(mod: String?): String = when ((mod ?: "").trim().lowercase()) {
+        "left" -> "balra"
+        "right" -> "jobbra"
+        "slight left" -> "enyhén balra"
+        "slight right" -> "enyhén jobbra"
+        "sharp left" -> "élesen balra"
+        "sharp right" -> "élesen jobbra"
+        "straight" -> "egyenesen"
+        "uturn" -> "fordulj vissza"
+        else -> ""
+    }
+
+    override fun phrase(type: String, mod: String?, road: String?, dest: String?, exitNo: String?, rbExit: Int?): String {
+        val onto = if (road != null) " a(z) $road irányába" else ""
+        val toward = when {
+            dest != null -> " $dest felé"
+            road != null -> " a(z) $road irányába"
+            else -> ""
+        }
+        val m = modWord(mod)
+        return when (type) {
+            "depart" -> if (road != null) "Indulj el a(z) $road úton" else "Kezdődik az útvonal"
+            "arrive" -> "Megérkeztél az úti célodhoz"
+            "turn", "end of road" -> ("Fordulj $m").trim() + onto
+            "continue", "new name" -> if (m.isNotBlank() && m != "egyenesen") ("Tarts $m").trim() + onto else "Haladj tovább$onto"
+            "merge" -> "Sorolj be$toward"
+            "on ramp", "ramp" -> when {
+                mod?.contains("right") == true -> "Hajts fel a pályára jobbra$toward"
+                mod?.contains("left") == true -> "Hajts fel a pályára balra$toward"
+                else -> "Hajts fel a pályára$toward"
+            }
+            "off ramp" -> if (exitNo != null) "Hajts ki a(z) $exitNo kijáratnál$toward" else "Hajts ki a kijáratnál$toward"
+            "fork" -> ("Tarts $m").trim() + toward
+            "roundabout", "rotary", "exit roundabout", "exit rotary" -> if (rbExit != null) "A körforgalomnál hajts ki a(z) $rbExit. kijáratnál$onto" else "Hajts be a körforgalomba$onto"
+            "roundabout turn" -> ("A körforgalomnál fordulj $m").trim() + onto
+            "uturn" -> "Fordulj vissza$onto"
+            else -> if (m.isNotBlank()) ("Fordulj $m").trim() + onto else "Haladj tovább$onto"
+        }
+    }
+
+    override fun spokenDistance(meters: Double, imperial: Boolean): String = if (imperial) {
+        val feet = meters * 3.28084
+        if (feet < 800) "${(if (feet < 100) maxOf(10, (feet / 10).roundToInt() * 10) else (feet / 50).roundToInt() * 50)} láb"
+        else {
+            val miles = (meters / 1609.34 * 10).roundToInt() / 10.0
+            if (miles == 1.0) "1 mérföld" else "${huNum(miles)} mérföld"
+        }
+    } else {
+        if (meters < 950) "${(meters / 10).roundToInt() * 10} méter"
+        else {
+            val km = (meters / 100).roundToInt() / 10.0
+            if (km == 1.0) "1 kilométer" else "${huNum(km)} kilométer"
+        }
+    }
+
+    override fun inThen(distancePhrase: String, instruction: String): String = "$distancePhrase múlva $instruction"
+
+    override fun arrived(): String = "Megérkeztél;"
+
+    override fun destinationSide(left: Boolean): String = if (left) "Az úti célod a bal oldalon lesz" else "Az úti célod a jobb oldalon lesz"
+
+    override fun startNav(firstInstruction: String): String = "Navigáció indítása. $firstInstruction"
+
+    override fun reachedStop(label: String): String =
+        if (label.isNotBlank()) "Megérkeztél ide: $label" else "Megérkeztél a köztes megállóhoz"
+
+    override fun fasterRoute(firstInstruction: String): String = "Gyorsabb útvonalra váltás. $firstInstruction"
+    override fun rerouting(): String = "Újratervezés"
+    override fun fasterRouteAvailable(minutes: Int): String =
+        if (minutes == 1) "Gyorsabb útvonal érhető el, amivel körülbelül egy percet takaríthatsz meg"
+        else "Gyorsabb útvonal érhető el, amivel körülbelül $minutes percet takaríthatsz meg"
+    override fun stopsNotIncluded(): String = "Nem sikerült beilleszteni a megállóidat ebbe az útvonalba. Továbbra is próbálkozom."
+    override fun destinationAhead(): String = "Az úti célod előtted lesz"
+
+    override fun voiceTest(): String = "A hangos navigáció be van kapcsolva. Négyszáz méter múlva fordulj jobbra."
+
+    override fun useLanes(side: LaneSide, count: Int): String {
+        val sideWord = when (side) { LaneSide.LEFT -> "bal"; LaneSide.RIGHT -> "jobb"; LaneSide.CENTER -> "középső" }
+        return if (count > 1) "Használd a $sideWord $count sávot" else "Használd a $sideWord sávot"
+    }
+
+    private fun huNum(x: Double): String {
+        val s = x.toString().replace('.', ',')
+        return if (s.endsWith(",0")) s.dropLast(2) else s
+    }
+}
+
 /**
  * Holds the active [NavStrings] for the process. Set explicitly from the resolved app locale on startup
  * and on every language change — do NOT read `Locale.getDefault()` at the leaf, because nav/TTS text is
@@ -1846,6 +1937,7 @@ object NavStringsRegistry {
         "zh" -> ZhNavStrings
         "zh-tw" -> ZhTwNavStrings
         "ja" -> JaNavStrings
+        "hu" -> HuNavStrings
         "he", "iw" -> HeNavStrings // JDK 17+ normalizes the old code "iw" → "he"; accept both
         else -> EnNavStrings
     }

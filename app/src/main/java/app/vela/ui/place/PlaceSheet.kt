@@ -70,6 +70,7 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Videocam
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -249,11 +250,14 @@ fun PlaceSheet(
     placesHere: List<Place> = emptyList(),
     stopDepartures: app.vela.core.model.StopDepartures? = null,
     stopDeparturesLoading: Boolean = false,
+    aiResponse: String? = null,
+    aiLoading: Boolean = false,
     onTapRoute: (app.vela.core.model.StopDepartureLine) -> Unit = {},
     onClose: () -> Unit,
     onToggleSave: () -> Unit,
     onDirections: () -> Unit,
     onStreetView: () -> Unit = {},
+    onAskAi: () -> Unit = {},
     onOpenPlace: (Place) -> Unit = {},
     onOpenSimilar: (app.vela.core.model.SimilarPlace) -> Unit = {},
     onSetShortcut: (ShortcutKind) -> Unit = {},
@@ -942,6 +946,9 @@ fun PlaceSheet(
                 // surface now, not a hand-off to Google's app. A tap loads the nearest pano; no
                 // coverage shows a brief "no Street View here" toast.
                 ActionPill(Icons.Filled.Streetview, stringResource(R.string.place_street_view), onClick = onStreetView)
+
+                // Vela AI - Ask about this place
+                ActionPill(Icons.Default.AutoAwesome, stringResource(R.string.place_ask_ai), onClick = { onAskAi() })
             }
 
             app.vela.ui.SheetFold(extrasComposed, extrasFraction) {
@@ -949,6 +956,36 @@ fun PlaceSheet(
             // is what you open a stop for - Google leads with it too). Renders nothing for non-transit
             // places, so the unconditional position is safe.
             StopDepartureBoard(stopDepartures, stopDeparturesLoading, ink, dim, dark, onTapRoute)
+
+            // AI Response Section
+            if (aiLoading || aiResponse != null) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(top = 14.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = (if (dark) Color(0xFF2C2C2C) else Color(0xFFF1F3F4)).copy(alpha = 0.5f)
+                    ),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Column(Modifier.padding(12.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.AutoAwesome, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                            Spacer(Modifier.width(8.dp))
+                            Text("Vela AI", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                            if (aiLoading) {
+                                Spacer(Modifier.width(8.dp))
+                                CircularProgressIndicator(Modifier.size(12.dp), strokeWidth = 2.dp)
+                            }
+                        }
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            aiResponse ?: stringResource(R.string.place_ai_loading),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = ink
+                        )
+                    }
+                }
+            }
+
             place.address?.let { addr ->
                 Row(
                     Modifier.fillMaxWidth().padding(top = 14.dp),

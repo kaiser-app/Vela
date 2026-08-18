@@ -16,6 +16,8 @@ import app.vela.core.data.RecentPlace
 import app.vela.core.data.RecentQuery
 import app.vela.core.data.RouteCorridor
 import app.vela.core.data.OverpassPois
+import app.vela.core.data.ai.AiService
+import app.vela.core.data.ai.GeminiAiService
 import app.vela.core.data.PlaceShortcutStore
 import app.vela.core.data.RecentPlaceStore
 import app.vela.core.data.RecentSearchStore
@@ -198,6 +200,8 @@ data class MapUiState(
     val transitPreview: TransitItinerary? = null,
     // A transit stop's live departure board (keyless, from the station's own place page).
     val stopDepartures: app.vela.core.model.StopDepartures? = null,
+    val aiResponse: String? = null,
+    val aiLoading: Boolean = false,
     val stopDeparturesLoading: Boolean = false,
     // The id of the place the board belongs to. The sheet renders the board ONLY when this matches
     // the selected place: writers are guarded, but selection paths that don't clear the board (a
@@ -343,6 +347,7 @@ class MapViewModel @Inject constructor(
     private val http: okhttp3.OkHttpClient,
     private val selfUpdater: app.vela.update.SelfUpdater,
     private val asrRecognizer: app.vela.voice.AsrRecognizer,
+    private val aiService: AiService,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MapUiState())
@@ -2345,6 +2350,8 @@ class MapViewModel @Inject constructor(
      *  browser engine isn't — see [WebPopularTimesFetcher]). Best-effort, applied
      *  only to fields we don't already have and only if it's still selected. */
     private fun fetchPlaceDetails(p: Place) {
+        // AI: clear previous response when opening a new place
+        _state.update { it.copy(aiResponse = null, aiLoading = false) }
         if (p.name.isBlank()) return
         // Fetch unless the place already looks complete. Beyond the three rich fields, a
         // missing review count / full weekly hours / address means this is a sparse summary
@@ -5816,6 +5823,59 @@ class MapViewModel @Inject constructor(
             .callTimeout(java.time.Duration.ZERO)
             .readTimeout(java.time.Duration.ofSeconds(120))
             .build()
+    }
+
+    fun askAiAboutPlace(question: String) {
+        val p = state.value.selected ?: return
+        val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
+            .getString("gemini_api_key", "") ?: ""
+
+        if (aiService is GeminiAiService) {
+            aiService.setApiKey(apiKey)
+        }
+
+        _state.update { it.copy(aiLoading = true, aiResponse = "") }
+        viewModelScope.launch {
+            try {
+                aiService.askAboutPlace(p, question).collect { chunk ->
+                    _state.update { old ->
+                        old.copy(aiResponse = (old.aiResponse ?: "") + chunk)
+                    }
+                }
+            } catch (t: Throwable) {
+                _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
+            } finally {
+                _state.update { it.copy(aiLoading = false) }
+                // Speak the result aloud if it's from a voice query (optional, can be a setting)
+                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
+            }
+        }
+    }
+
+    fun summarizePlaceWithAi() {
+        val p = state.value.selected ?: return
+        val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
+            .getString("gemini_api_key", "") ?: ""
+
+        if (aiService is GeminiAiService) {
+            aiService.setApiKey(apiKey)
+        }
+
+        _state.update { it.copy(aiLoading = true, aiResponse = "") }
+        viewModelScope.launch {
+            try {
+                aiService.summarizePlace(p).collect { chunk ->
+                    _state.update { old ->
+                        old.copy(aiResponse = (old.aiResponse ?: "") + chunk)
+                    }
+                }
+            } catch (t: Throwable) {
+                _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
+            } finally {
+                _state.update { it.copy(aiLoading = false) }
+                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
+            }
+        }
     }
 
     companion object {

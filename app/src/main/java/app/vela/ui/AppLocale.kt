@@ -26,10 +26,8 @@ object AppLocale {
     // "he" is the modern Hebrew code the picker + NavStrings use; the Android RESOURCES live in the
     // legacy-qualifier folder res/values-iw (AAPT's Hebrew qualifier), and the platform maps a "he"
     // locale onto values-iw, so the two agree. (Same legacy-pair handling as id/in, yi/ji.)
-    // "hu" (Hungarian, NA-VIGATOR fork): App UI translation in progress — see
-    // values-hu/strings.xml (partial coverage right now, see the TODO note at its top).
-    // Spoken directions (NavStrings) and a Piper voice are NOT yet done for "hu" — see
-    // docs/LANGUAGES.md. Until those land, nav voice prompts fall back to English/system TTS.
+    // "hu" (Hungarian): App UI and nav voice templates land in this release.
+    // Download the "Anna" Piper voice in the Voice library for natural on-device guidance.
     val SUPPORTED = listOf("en", "fr", "de", "es", "it", "pt", "nl", "ru", "pl", "sv", "uk", "zh", "zh-TW", "ja", "he", "hu")
 
     private val ENDONYMS = mapOf(

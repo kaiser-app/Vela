@@ -1,2 +1,2 @@
-    git config --global user.name "Saját Neved"
+    git config --global user.name "kaiser-app"
     

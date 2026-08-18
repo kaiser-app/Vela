@@ -3,6 +3,8 @@ package app.vela.ui.settings.sections
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -57,6 +59,36 @@ internal fun DataPrivacySettingsScreen(vm: app.vela.ui.map.MapViewModel, onBack:
             },
             hint = stringResource(R.string.settings_live_rechecks_hint),
         )
+        }
+        Spacer(Modifier.height(24.dp))
+        
+        var aiKey by androidx.compose.runtime.remember {
+            androidx.compose.runtime.mutableStateOf(
+                context.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+                    .getString("gemini_api_key", "") ?: ""
+            )
+        }
+        PageIntro("Vela AI")
+        SettingsGroup {
+            androidx.compose.material3.OutlinedTextField(
+                value = aiKey,
+                onValueChange = {
+                    aiKey = it
+                    context.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+                        .edit().putString("gemini_api_key", it).apply()
+                },
+                label = { Text("Gemini API kulcs") },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                singleLine = true,
+                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            )
+        }
+        androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                "A Gemini API kulcsot a Google AI Studio-ban igényelhetsz ingyenesen. Az AI segít megválaszolni a helyszínekkel kapcsolatos kérdéseidet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (app.vela.ui.theme.isAppInDarkTheme()) app.vela.ui.SheetPalette.DimDark else app.vela.ui.SheetPalette.DimLight
+            )
         }
         Spacer(Modifier.height(24.dp))
     }
