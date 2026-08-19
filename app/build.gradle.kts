@@ -45,8 +45,8 @@ android {
         targetSdk = 35
         // Overridable from CI: -PappVersionCode / -PappVersionName (ci.yml derives
         // them from the run number → 0.3.<run> / 2000+run). Defaults are local/dev only.
-        versionCode = (project.findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 104
-        versionName = (project.findProperty("appVersionName") as String?) ?: "1.0.4"
+        versionCode = (project.findProperty("appVersionCode") as String?)?.toIntOrNull() ?: 105
+        versionName = (project.findProperty("appVersionName") as String?) ?: "1.0.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }

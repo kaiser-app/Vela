@@ -21,7 +21,7 @@ class GeminiAiService @Inject constructor() : AiService {
 
     private fun getModel(systemInstruction: String): GenerativeModel {
         return GenerativeModel(
-            modelName = "gemini-1.5-flash-latest",
+            modelName = "gemini-1.5-flash",
             apiKey = apiKey,
             systemInstruction = content { text(systemInstruction) }
         )
