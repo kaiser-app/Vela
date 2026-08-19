@@ -1,6 +1,7 @@
 package app.vela.ui.map
 
 import android.content.Context
+import android.widget.Toast
 import app.vela.R
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -5832,62 +5833,9 @@ class MapViewModel @Inject constructor(
     }
 
     fun askAiAboutPlace(question: String) {
-        val p = state.value.selected ?: return
-        val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
-            .getString("gemini_api_key", "") ?: ""
-
-        if (aiService is GeminiAiService) {
-            aiService.setApiKey(apiKey)
-        }
-
-        _state.update { it.copy(aiLoading = true, aiResponse = "") }
-        viewModelScope.launch {
-            try {
-                aiService.askAboutPlace(p, question).collect { chunk ->
-                    _state.update { old ->
-                        old.copy(aiResponse = (old.aiResponse ?: "") + chunk)
-                    }
-                }
-            } catch (t: Throwable) {
-                _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
-            } finally {
-                _state.update { it.copy(aiLoading = false) }
-                // Speak the result aloud if it's from a voice query (optional, can be a setting)
-                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
-            }
-        }
-    }
-
-    fun summarizePlaceWithAi() {
-        val p = state.value.selected ?: return
-        val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
-            .getString("gemini_api_key", "") ?: ""
-
-        if (aiService is GeminiAiService) {
-            aiService.setApiKey(apiKey)
-        }
-
-        _state.update { it.copy(aiLoading = true, aiResponse = "") }
-        viewModelScope.launch {
-            try {
-                aiService.summarizePlace(p).collect { chunk ->
-                    _state.update { old ->
-                        old.copy(aiResponse = (old.aiResponse ?: "") + chunk)
-                    }
-                }
-            } catch (t: Throwable) {
-                _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
-            } finally {
-                _state.update { it.copy(aiLoading = false) }
-                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
-            }
-        }
-    }
-
-    fun askAiAboutPlace(question: String) {
         val s = _state.value
         val p = s.selected
-        val apiKey = appContext.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+        val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
             .getString("gemini_api_key", "") ?: ""
 
         if (aiService is app.vela.core.data.ai.GeminiAiService) {
@@ -5927,7 +5875,7 @@ class MapViewModel @Inject constructor(
 
     fun summarizePlaceWithAi() {
         val p = _state.value.selected ?: return
-        val apiKey = appContext.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+        val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
             .getString("gemini_api_key", "") ?: ""
 
         if (aiService is app.vela.core.data.ai.GeminiAiService) {

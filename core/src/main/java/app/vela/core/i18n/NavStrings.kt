@@ -99,7 +99,6 @@ interface NavStrings {
         useLanes(side, count) + ". " + instruction
 
     fun trafficAlert(kind: app.vela.core.data.TrafficControl.Kind): String? = null
-}
 
     /**
      * Expand road abbreviations + numbers so the TTS engine SAYS them ("St"→"Street", "128th"→"one

@@ -5513,6 +5513,9 @@ private fun applyData(
                             app.vela.core.data.TrafficControl.Kind.SIGNAL -> SIGNAL_IMG
                             app.vela.core.data.TrafficControl.Kind.RAIL_CROSSING -> RAILX_IMG
                             app.vela.core.data.TrafficControl.Kind.SPEED_HUMP -> HUMP_IMG
+                            app.vela.core.data.TrafficControl.Kind.PEDESTRIAN_CROSSING -> SIGNAL_IMG // TODO: add crossing icon
+                            app.vela.core.data.TrafficControl.Kind.BICYCLE_PATH -> SIGNAL_IMG // TODO: add bicycle icon
+                            app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> STOP_IMG // TODO: add priority icon
                         },
                     )
                 }

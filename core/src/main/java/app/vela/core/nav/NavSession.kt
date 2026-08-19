@@ -2,6 +2,7 @@ package app.vela.core.nav
 
 import android.os.SystemClock
 import app.vela.core.data.MapDataSource
+import app.vela.core.data.TrafficControl
 import app.vela.core.feedback.Haptics
 import app.vela.core.model.LatLng
 import app.vela.core.model.Route
