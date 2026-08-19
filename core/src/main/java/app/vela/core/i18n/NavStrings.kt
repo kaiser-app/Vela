@@ -1953,10 +1953,11 @@ object HuNavStrings : NavStrings {
 
     override fun trafficAlert(kind: app.vela.core.data.TrafficControl.Kind): String? = when (kind) {
         app.vela.core.data.TrafficControl.Kind.STOP -> "Stop tábla következik"
-        app.vela.core.data.TrafficControl.Kind.RAIL_CROSSING -> "Vasúti átjáró előtted"
-        app.vela.core.data.TrafficControl.Kind.PEDESTRIAN_CROSSING -> "Vigyázz, gyalogosátkelő"
-        app.vela.core.data.TrafficControl.Kind.BICYCLE_PATH -> "Biciklisáv kereszteződés"
-        app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> "Figyelj, elsőbbségadás vagy jobbkéz szabály"
+        app.vela.core.data.TrafficControl.Kind.RAIL_CROSSING -> "Vasúti átjáró következik"
+        app.vela.core.data.TrafficControl.Kind.PEDESTRIAN_CROSSING -> "Figyeld a zebrát"
+        app.vela.core.data.TrafficControl.Kind.BICYCLE_PATH -> "Vigyázz, biciklisek"
+        app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> "Figyelj, jobbkéz szabály vagy elsőbbségadás"
+        app.vela.core.data.TrafficControl.Kind.SIGNAL -> "Közlekedési lámpa következik"
         else -> null
     }
 

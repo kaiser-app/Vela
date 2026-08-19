@@ -64,6 +64,8 @@ import androidx.compose.material.icons.filled.LocalCafe
 import androidx.compose.material.icons.filled.LocalGasStation
 import androidx.compose.material.icons.filled.LocalGroceryStore
 import androidx.compose.material.icons.filled.LocalPharmacy
+import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.AddLocationAlt
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Delete
@@ -1386,15 +1388,29 @@ fun MapScreen(
                     }
                     if (landscapeOneLine && !searchOpen) {
                         // In landscape, if search is not open, show just a floating search icon on the right
-                        // This corresponds to your "search bar as an icon" concept.
+                        // This is your new "Search (a), Mic (b), Settings (c)" on the right side concept.
                         Box(Modifier.fillMaxSize().statusBarsPadding().padding(top = 16.dp, end = 16.dp)) {
-                            FloatingActionButton(
-                                onClick = { searchExpanded = true },
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .dpadHighlight(RoundedCornerShape(16.dp)),
-                            ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_label)) }
+                            Column(Modifier.align(Alignment.TopEnd), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                FloatingActionButton(
+                                    onClick = { searchExpanded = true },
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                                ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_label)) }
+                                
+                                if (onMic != null) {
+                                    FloatingActionButton(
+                                        onClick = onMic,
+                                        containerColor = MaterialTheme.colorScheme.surface,
+                                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                                    ) { Icon(Icons.Default.Mic, contentDescription = null) }
+                                }
+                                
+                                FloatingActionButton(
+                                    onClick = onOpenSettings,
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                                ) { Icon(Icons.Default.Settings, contentDescription = null) }
+                            }
                         }
                     } else if (landscapeOneLine) {
                         // Search is OPEN: show the full bar in landscape
@@ -1550,33 +1566,82 @@ fun MapScreen(
         // re-center button joining the stack when panned away / previewing a step. Hidden
         // while the along-route results own the bottom slot.
         if (state.navigating && state.results.isEmpty()) {
+            val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+
+            // Left side FABs (Landscape only): Recenter + Overview
+            if (landscape) {
+                Column(
+                    Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(start = 16.dp, top = 220.dp) // Below NavControls
+                        .navigationBarsPadding(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    if (state.navCameraDetached || state.previewStepIndex != null || navZoomOverride) {
+                        FloatingActionButton(
+                            onClick = {
+                                vm.recenterNav()
+                                navRecenterTick++
+                            },
+                            modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                        ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                    }
+                    FloatingActionButton(
+                        onClick = {
+                            vm.navOverview()
+                            navOverviewTick++
+                        },
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
+                }
+            }
+
+            // Right side / Bottom-right FAB stack
             Column(
                 verticalArrangement = Arrangement.spacedBy(10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .align(Alignment.BottomEnd)
+                    .align(if (landscape) Alignment.CenterEnd else Alignment.BottomEnd)
                     .navigationBarsPadding()
-                    .padding(end = 16.dp, bottom = navBarClearance),
+                    .padding(end = 16.dp, bottom = if (landscape) 0.dp else navBarClearance),
             ) {
-                if (state.navCameraDetached || state.previewStepIndex != null || navZoomOverride) {
+                if (landscape) {
+                    // C, B, A in landscape vertical order
+                    FloatingActionButton(
+                        onClick = onOpenSettings,
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    ) { Icon(Icons.Default.Settings, contentDescription = null) }
+                    
+                    if (onMic != null) {
+                        FloatingActionButton(
+                            onClick = onMic,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                        ) { Icon(Icons.Default.Mic, contentDescription = null) }
+                    }
+                }
+
+                if (!landscape) {
+                    if (state.navCameraDetached || state.previewStepIndex != null || navZoomOverride) {
+                        FloatingActionButton(
+                            onClick = {
+                                vm.recenterNav()
+                                navRecenterTick++
+                            },
+                            modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                        ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                    }
+                    // Whole-route overview (Google's fly-over)
                     FloatingActionButton(
                         onClick = {
-                            vm.recenterNav()
-                            navRecenterTick++
+                            vm.navOverview()
+                            navOverviewTick++
                         },
                         modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                    ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                    ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
                 }
-                // Whole-route overview (Google's fly-over): camera only, the drive keeps
-                // navigating; Re-center (above, it appears the moment this detaches the
-                // camera) glides straight back into the follow.
-                FloatingActionButton(
-                    onClick = {
-                        vm.navOverview()
-                        navOverviewTick++
-                    },
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
+
                 FloatingActionButton(
                     onClick = vm::toggleVoice,
                     modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),

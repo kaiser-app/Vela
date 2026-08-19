@@ -56,14 +56,16 @@ object OverpassTrafficSignals {
             "node[\"traffic_calming\"~\"^(bump|hump|table|cushion)$\"]$where;" +
             "node[\"highway\"=\"crossing\"]$where;" +
             "node[\"cycleway\"]$where;" +
+            "node[\"hazard\"]$where;" +
             "node[\"priority\"=\"uncontrolled\"]$where;"
 
     private fun kindOf(tags: Map<String, String>?): TrafficControl.Kind = when {
         tags?.get("highway") == "stop" -> TrafficControl.Kind.STOP
-        tags?.get("highway") == "give_way" -> TrafficControl.Kind.EQUAL_PRIORITY // Treat as priority watch
+        tags?.get("highway") == "give_way" -> TrafficControl.Kind.EQUAL_PRIORITY
         tags?.get("railway") == "level_crossing" -> TrafficControl.Kind.RAIL_CROSSING
         tags?.get("traffic_calming") != null -> TrafficControl.Kind.SPEED_HUMP
         tags?.get("highway") == "crossing" -> TrafficControl.Kind.PEDESTRIAN_CROSSING
+        tags?.get("hazard") != null -> TrafficControl.Kind.SPEED_HUMP // Reuse hump icon for generic hazard/pothole for now
         tags?.get("cycleway") != null -> TrafficControl.Kind.BICYCLE_PATH
         tags?.get("priority") == "uncontrolled" -> TrafficControl.Kind.EQUAL_PRIORITY
         else -> TrafficControl.Kind.SIGNAL

@@ -15,9 +15,9 @@ class NavAlertEngine {
     private var lastAlertTime = 0L
 
     // Minimum time between alerts of the same kind to prevent spamming
-    private val REPEAT_COOLDOWN_MS = TimeUnit.SECONDS.toMillis(30)
-    // Distance threshold to trigger the alert (meters)
-    private val ALERT_DISTANCE_M = 80.0
+    private val REPEAT_COOLDOWN_MS = TimeUnit.SECONDS.toMillis(45)
+    // Distance threshold to trigger the alert (meters). 120m is better for city driving.
+    private val ALERT_DISTANCE_M = 120.0
 
     fun setControls(newControls: List<TrafficControl>) {
         controls = newControls

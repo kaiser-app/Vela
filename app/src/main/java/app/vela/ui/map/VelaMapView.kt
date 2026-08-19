@@ -3404,7 +3404,9 @@ private fun ensureLayers(style: Style) {
                 PropertyFactory.iconPadding(2f),
             )
         }
+        val markersLayerId = style.getLayer(MARKERS_LAYER)?.id
         when {
+            markersLayerId != null -> style.addLayerBelow(visible, markersLayerId)
             style.getLayer(ROUTE_AHEAD_LAYER) != null -> style.addLayerAbove(visible, ROUTE_AHEAD_LAYER)
             firstSymbol != null -> style.addLayerBelow(visible, firstSymbol)
             else -> style.addLayerBelow(visible, AMBIENT_LAYER)

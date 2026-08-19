@@ -5868,7 +5868,13 @@ class MapViewModel @Inject constructor(
                 _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
             } finally {
                 _state.update { it.copy(aiLoading = false) }
-                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
+                // Speak the result aloud, stripping Markdown symbols like ** which Anna reads as "csillag"
+                _state.value.aiResponse?.let { 
+                    if (it.isNotBlank()) {
+                        val cleanText = it.replace("**", "").replace("*", "").replace("#", "")
+                        voice.speak(cleanText)
+                    }
+                }
             }
         }
     }
@@ -5894,7 +5900,13 @@ class MapViewModel @Inject constructor(
                 _state.update { it.copy(aiResponse = "Hiba történt: ${t.message}") }
             } finally {
                 _state.update { it.copy(aiLoading = false) }
-                _state.value.aiResponse?.let { if (it.isNotBlank()) voice.speak(it) }
+                // Speak the result aloud, stripping Markdown symbols like ** which Anna reads as "csillag"
+                _state.value.aiResponse?.let { 
+                    if (it.isNotBlank()) {
+                        val cleanText = it.replace("**", "").replace("*", "").replace("#", "")
+                        voice.speak(cleanText)
+                    }
+                }
             }
         }
     }
