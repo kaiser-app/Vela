@@ -39,7 +39,7 @@ carApp = "1.4.0"
 # clean "name Google's path" always-snap). Pure JVM; runs on ART with 3 workarounds
 # (MMAP / SpeedWeighting factory / close()-swallow) — see RouteEngine + ROADMAP.
 graphhopper = "11.0"
-generativeai = "0.9.0"
+generativeai = "0.11.0"
 
 [libraries]
 google-generativeai = { group = "com.google.ai.client.generativeai", name = "generativeai", version.ref = "generativeai" }
