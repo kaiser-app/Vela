@@ -41,21 +41,40 @@ class GeminiAiService @Inject constructor() : AiService {
             return@flow
         }
 
-        try {
-            val context = buildAiContext(currentLoc, currentAddress, destination, eta, place, time)
-            val model = getModel("Te egy segítőkész navigációs asszisztens vagy a Vela térkép alkalmazásban. " +
-                    "A válaszaid legyenek lényegretörőek, barátságosak és magyar nyelvűek. " +
-                    "Ismered a felhasználó helyzetét, úti célját és az aktuális időt.")
-            
-            val response = model.generateContentStream(content {
-                text("Környezeti információk:\n$context\n\nKérdés: $question")
-            })
+        val context = buildAiContext(currentLoc, currentAddress, destination, eta, place, time)
+        val model = getModel("Te egy segítőkész navigációs asszisztens vagy a Vela térkép alkalmazásban. " +
+                "A válaszaid legyenek lényegretörőek, barátságosak és magyar nyelvűek. " +
+                "Ismered a felhasználó helyzetét, úti célját és az aktuális időt.")
 
-            response.map { it.text ?: "" }.collect { emit(it) }
-        } catch (e: Exception) {
-            val msg = e.localizedMessage ?: ""
-            emit("AI Hiba: $msg")
+        var attempts = 0
+        val maxAttempts = 5
+        var lastException: Exception? = null
+
+        while (attempts < maxAttempts) {
+            try {
+                val response = model.generateContentStream(content {
+                    text("Környezeti információk:\n$context\n\nKérdés: $question")
+                })
+
+                response.map { it.text ?: "" }.collect { emit(it) }
+                return@flow // Success!
+            } catch (e: Exception) {
+                attempts++
+                lastException = e
+                val msg = e.localizedMessage ?: ""
+                
+                // Only retry on 503 or potentially transient network errors
+                if (attempts < maxAttempts && (msg.contains("503") || msg.contains("Unavailable") || msg.contains("Deadline"))) {
+                    kotlinx.coroutines.delay(1000L * attempts) // Wait 1s, 2s, 3s...
+                    continue
+                } else {
+                    break // Non-retryable error or ran out of attempts
+                }
+            }
         }
+
+        val finalMsg = lastException?.localizedMessage ?: "Ismeretlen hiba"
+        emit("AI Hiba (5 próbálkozás után): $finalMsg")
     }
 
     override fun summarizePlace(place: Place): Flow<String> = flow {
@@ -64,19 +83,34 @@ class GeminiAiService @Inject constructor() : AiService {
             return@flow
         }
 
-        try {
-            val model = getModel("Te egy helyszín-összefoglaló asszisztens vagy. " +
-                    "Készíts egy rövid, 2-3 mondatos összefoglalót a helyről a megadott adatok és vélemények alapján magyarul.")
+        val model = getModel("Te egy helyszín-összefoglaló asszisztens vagy. " +
+                "Készíts egy rövid, 2-3 mondatos összefoglalót a helyről a megadott adatok és vélemények alapján magyarul.")
 
-            val response = model.generateContentStream(content {
-                text("Foglald össze ezt a helyet: ${place.name}, ${place.category}, ${place.address}. " +
-                        "Értékelés: ${place.rating}. Vélemény: ${place.featuredReview ?: "nincs"}")
-            })
+        var attempts = 0
+        val maxAttempts = 5
+        var lastException: Exception? = null
 
-            response.map { it.text ?: "" }.collect { emit(it) }
-        } catch (e: Exception) {
-            emit("AI Hiba: ${e.localizedMessage}")
+        while (attempts < maxAttempts) {
+            try {
+                val response = model.generateContentStream(content {
+                    text("Foglald össze ezt a helyet: ${place.name}, ${place.category}, ${place.address}. " +
+                            "Értékelés: ${place.rating}. Vélemény: ${place.featuredReview ?: "nincs"}")
+                })
+
+                response.map { it.text ?: "" }.collect { emit(it) }
+                return@flow
+            } catch (e: Exception) {
+                attempts++
+                lastException = e
+                val msg = e.localizedMessage ?: ""
+                if (attempts < maxAttempts && (msg.contains("503") || msg.contains("Unavailable"))) {
+                    kotlinx.coroutines.delay(1000L * attempts)
+                    continue
+                } else break
+            }
         }
+
+        emit("AI Hiba: ${lastException?.localizedMessage}")
     }
 
     private fun buildAiContext(

@@ -1839,7 +1839,7 @@ object HuNavStrings : NavStrings {
         if (text == null || text.isBlank()) return ""
         val trimmed = text.trim().lowercase()
         val first = trimmed.firstOrNull() ?: return "a"
-        
+
         // Handle numbers (especially for roundabout exits)
         if (first.isDigit()) {
             // 1 (első), 5 (ötödik) start with vowels in Hungarian speech
@@ -1849,9 +1849,41 @@ object HuNavStrings : NavStrings {
         return if (first in "aeiouáéíóöőúüű") "az $text" else "a $text"
     }
 
+    /**
+     * Hungarian road name helper: handles suffixes like "utca", "út" to avoid "utca útra".
+     * [onto] = true for "onto <road>" (suffix -ra/-re/-ba/-be), false for "on <road>" (suffix -n/-on/-en/-ön).
+     */
+    private fun huRoad(road: String?, onto: Boolean): String {
+        if (road == null || road.isBlank()) return ""
+        val r = road.trim()
+        val low = r.lowercase()
+        return when {
+            low.endsWith(" utca") || low.endsWith("utca") -> if (onto) r.substring(0, r.length - 1) + "ára" else r.substring(0, r.length - 1) + "án"
+            low.endsWith(" u.") || low.endsWith("u.") -> {
+                val base = if (low.endsWith(" u.")) r.dropLast(3) else r.dropLast(2)
+                if (onto) base + "utcára" else base + "utcán"
+            }
+            low.endsWith(" út") || low.endsWith("út") -> if (onto) r + "ra" else r + "on"
+            low.endsWith(" útja") || low.endsWith("útja") -> if (onto) r.substring(0, r.length - 2) + "ára" else r.substring(0, r.length - 2) + "án"
+            low.endsWith(" tér") || low.endsWith("tér") -> if (onto) r + "re" else r + "en"
+            low.endsWith(" tere") || low.endsWith("tere") -> if (onto) r.substring(0, r.length - 1) + "ére" else r.substring(0, r.length - 1) + "én"
+            low.endsWith(" körút") || low.endsWith("körút") -> if (onto) r + "ra" else r + "on"
+            low.endsWith(" krt.") || low.endsWith("krt.") -> {
+                val base = if (low.endsWith(" krt.")) r.dropLast(4) else r.dropLast(3)
+                if (onto) base + "körútra" else base + "körúton"
+            }
+            low.endsWith(" sétány") || low.endsWith("sétány") -> if (onto) r + "ra" else r + "on"
+            low.endsWith(" köz") || low.endsWith("köz") -> if (onto) r + "be" else r + "ben"
+            low.endsWith(" rakpart") || low.endsWith("rakpart") -> if (onto) r + "ra" else r + "on"
+            low.endsWith(" dűlő") || low.endsWith("dűlő") -> if (onto) r + "re" else r + "n"
+            // Default: if it doesn't end with a known suffix, only THEN append "útra" / "úton"
+            else -> if (onto) "$r útra" else "$r úton"
+        }
+    }
+
     override fun phrase(type: String, mod: String?, road: String?, dest: String?, exitNo: String?, rbExit: Int?): String {
-        val onto = if (road != null) " ${det(road)} útra" else ""
-        val onRoad = if (road != null) " ${det(road)} úton" else ""
+        val onto = if (road != null) " ${det(huRoad(road, onto = true))}" else ""
+        val onRoad = if (road != null) " ${det(huRoad(road, onto = false))}" else ""
         val toward = when {
             dest != null -> " $dest felé"
             road != null -> " ${det(road)} irányába"
@@ -1895,7 +1927,7 @@ object HuNavStrings : NavStrings {
 
     override fun inThen(distancePhrase: String, instruction: String): String = "$distancePhrase múlva $instruction"
 
-    override fun arrived(): String = "Megérkeztél;"
+    override fun arrived(): String = "Megérkeztél"
 
     override fun destinationSide(left: Boolean): String = if (left) "Az úti célod a bal oldalon lesz" else "Az úti célod a jobb oldalon lesz"
 
