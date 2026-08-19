@@ -1252,6 +1252,7 @@ fun MapScreen(
             fun navRomanize(s: String): String =
                 if (s.isEmpty() || state.roadNameLatin.isEmpty()) s
                 else app.vela.core.voice.SpokenScript.forDisplay(s, navUiLang, state.roadNameLatin)
+            val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
             ManeuverBanner(
                 offRoute = state.nav.offRoute,
                 text = navRomanize(if (previewing) (shown?.instruction.orEmpty()) else state.maneuverText),
@@ -1291,9 +1292,9 @@ fun MapScreen(
                 onPreviewPrev = { if (shownIdx - 1 <= liveStep) vm.clearPreview() else vm.previewStep(shownIdx - 1) },
                 onExitPreview = vm::clearPreview,
                 modifier = Modifier
-                    .align(Alignment.TopCenter)
+                    .align(if (landscape) Alignment.TopStart else Alignment.TopCenter)
                     .statusBarsPadding()
-                    .padding(12.dp)
+                    .then(if (landscape) Modifier.width(320.dp).padding(start = 16.dp, top = 16.dp) else Modifier.fillMaxWidth().padding(12.dp))
                     // Report the banner's bottom edge so the compass can drop just below it (any height).
                     .onGloballyPositioned { navBannerBottomPx = (it.positionInRoot().y + it.size.height).roundToInt() },
             )
@@ -1383,24 +1384,22 @@ fun MapScreen(
                         onMic = onMic,
                     )
                     }
-                    if (landscapeOneLine) {
-                        // Landscape browse chrome is ONE line, Google-style (user 2026-07-15):
-                        // the search bar takes half the width and the category chips scroll
-                        // beside it, so the top-right corner stack (layers button, compass)
-                        // starts a whole row higher on screens that are already short. With the
-                        // search page open the bar grows to full width IN PLACE (see the
-                        // landscapeOneLine note above - the field must not remount) and the
-                        // chips step aside; the entry page renders full-width below as usual.
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(if (searchOpen) Modifier.fillMaxWidth() else Modifier.weight(1f)) { searchBar() }
-                            if (!searchOpen) {
-                                Spacer(Modifier.width(10.dp))
-                                CategoryChips(
-                                    onPick = vm::quickSearch,
-                                    onOpenLists = { listsSheetOpen = true },
-                                    modifier = Modifier.weight(1f),
-                                )
-                            }
+                    if (landscapeOneLine && !searchOpen) {
+                        // In landscape, if search is not open, show just a floating search icon on the right
+                        // This corresponds to your "search bar as an icon" concept.
+                        Box(Modifier.fillMaxSize().statusBarsPadding().padding(top = 16.dp, end = 16.dp)) {
+                            FloatingActionButton(
+                                onClick = { searchExpanded = true },
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .dpadHighlight(RoundedCornerShape(16.dp)),
+                            ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.search_label)) }
+                        }
+                    } else if (landscapeOneLine) {
+                        // Search is OPEN: show the full bar in landscape
+                        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.statusBarsPadding().padding(horizontal = 16.dp)) {
+                            Box(Modifier.fillMaxWidth()) { searchBar() }
                         }
                     } else if (!(state.selected != null && placeSheetExpanded && !searchOpen && !landscapeChrome &&
                         placeSheetTopPx < screenHeightPx * 0.40f) &&
@@ -1745,26 +1744,30 @@ fun MapScreen(
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
 
-            // While an in-nav search has results, the results branch below takes the bottom
             // slot (Google's in-nav list does the same); clearing it brings the bar back.
-            state.navigating && state.results.isEmpty() -> Column(
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                NavControls(
-                    remainingDistanceMeters = state.nav.remainingDistance,
-                    remainingSeconds = state.nav.remainingDuration,
-                    offRoute = state.nav.offRoute,
-                    onStop = vm::stopNav,
-                    onSteps = vm::openSteps,
-                    trafficRatio = state.activeRoute?.trafficRatio,
-                    // Measured AFTER the padding → the bar surface itself; navBarClearance adds the
-                    // padding + gap back. Everything stacked above the bar keys off this.
-                    modifier = Modifier.onGloballyPositioned { navBarHeightPx = it.size.height },
-                )
+            state.navigating && state.results.isEmpty() -> {
+                val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .navigationBarsPadding()
+                        .padding(if (landscape) 16.dp else 0.dp)
+                ) {
+                    NavControls(
+                        remainingDistanceMeters = state.nav.remainingDistance,
+                        remainingSeconds = state.nav.remainingDuration,
+                        offRoute = state.nav.offRoute,
+                        onStop = vm::stopNav,
+                        onSteps = vm::openSteps,
+                        trafficRatio = state.activeRoute?.trafficRatio,
+                        // Measured AFTER the padding → the bar surface itself; navBarClearance adds the
+                        // padding + gap back. Everything stacked above the bar keys off this.
+                        modifier = Modifier
+                            .align(if (landscape) Alignment.CenterStart else Alignment.BottomCenter)
+                            .then(if (landscape) Modifier.width(320.dp) else Modifier.fillMaxWidth())
+                            .onGloballyPositioned { navBarHeightPx = it.size.height },
+                    )
+                }
             }
 
             // The dedicated stops editor covers the directions panel while open (drag to

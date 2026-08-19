@@ -807,6 +807,12 @@ fun VelaMapView(
             style.getLayer(TRANSIT_STOPS_LAYER)
                 ?.setProperties(PropertyFactory.visibility(if (navMode) Property.NONE else Property.VISIBLE))
         }
+        // Ensure traffic controls (lights/stops) are always visible during nav
+        runCatching {
+            listOf(CONTROLS_LAYER, CONTROLS_CLAIM_LAYER).forEach { id ->
+                style.getLayer(id)?.setProperties(PropertyFactory.visibility(Property.VISIBLE))
+            }
+        }
         // CAR-MODE strip (drive nav only, 2026-07-16 - the battery report): basemap highway
         // shields (a wall of badges including the other carriageway's; the banner's chips carry
         // the route refs), bike/trail accent lines, hillshade, the transit-lines accent, and the

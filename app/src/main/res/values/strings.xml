@@ -463,6 +463,7 @@
     <string name="search_close_cd">Close search</string>
     <string name="search_placeholder">Search</string>
     <string name="search_offline">Offline</string>
+    <string name="search_label">Search</string>
     <string name="search_clear_cd">Clear search</string>
     <string name="search_settings_cd">Settings</string>
 

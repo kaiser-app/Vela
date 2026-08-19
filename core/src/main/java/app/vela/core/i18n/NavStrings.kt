@@ -1956,7 +1956,7 @@ object HuNavStrings : NavStrings {
         app.vela.core.data.TrafficControl.Kind.RAIL_CROSSING -> "Vasúti átjáró előtted"
         app.vela.core.data.TrafficControl.Kind.PEDESTRIAN_CROSSING -> "Vigyázz, gyalogosátkelő"
         app.vela.core.data.TrafficControl.Kind.BICYCLE_PATH -> "Biciklisáv kereszteződés"
-        app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> "Egyenrangú útkereszteződés, figyeld a jobbkezet"
+        app.vela.core.data.TrafficControl.Kind.EQUAL_PRIORITY -> "Figyelj, elsőbbségadás vagy jobbkéz szabály"
         else -> null
     }
 

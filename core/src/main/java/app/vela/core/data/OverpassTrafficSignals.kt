@@ -51,6 +51,7 @@ object OverpassTrafficSignals {
     private fun controlSelectors(where: String): String =
         "node[\"highway\"=\"traffic_signals\"]$where;" +
             "node[\"highway\"=\"stop\"]$where;" +
+            "node[\"highway\"=\"give_way\"]$where;" +
             "node[\"railway\"=\"level_crossing\"]$where;" +
             "node[\"traffic_calming\"~\"^(bump|hump|table|cushion)$\"]$where;" +
             "node[\"highway\"=\"crossing\"]$where;" +
@@ -59,6 +60,7 @@ object OverpassTrafficSignals {
 
     private fun kindOf(tags: Map<String, String>?): TrafficControl.Kind = when {
         tags?.get("highway") == "stop" -> TrafficControl.Kind.STOP
+        tags?.get("highway") == "give_way" -> TrafficControl.Kind.EQUAL_PRIORITY // Treat as priority watch
         tags?.get("railway") == "level_crossing" -> TrafficControl.Kind.RAIL_CROSSING
         tags?.get("traffic_calming") != null -> TrafficControl.Kind.SPEED_HUMP
         tags?.get("highway") == "crossing" -> TrafficControl.Kind.PEDESTRIAN_CROSSING

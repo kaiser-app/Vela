@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -144,9 +145,12 @@ fun ManeuverBanner(
     // the 54dp glyph + full paddings buried the map on sub-500dp-tall displays, so the banner
     // shrinks its chrome there. Ordinary phones and tall head units never trip the gate.
     val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 500
+    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >
+        androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    
     Card(
         modifier
-            .fillMaxWidth()
+            .then(if (landscape) Modifier.widthIn(max = 600.dp) else Modifier.fillMaxWidth())
             .graphicsLayer { translationX = offsetX.value }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
@@ -685,6 +689,9 @@ fun NavControls(
     modifier: Modifier = Modifier,
 ) {
     val dark = isAppInDarkTheme()
+    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >
+        androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+
     // Colour the ETA by live traffic (Google-style): green free-flowing → amber →
     // red. Default ink when there's no live data (offline / traffic-less route).
     val etaColor = when {
@@ -694,7 +701,7 @@ fun NavControls(
         else -> SheetPalette.TrafficGreen
     }
     Card(
-        modifier.fillMaxWidth(),
+        modifier.then(if (landscape) Modifier.widthIn(max = 600.dp) else Modifier.fillMaxWidth()),
         // Match the banner's treatment: generous radius + shadow, a floating pill not a bar.
         shape = RoundedCornerShape(28.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -703,15 +710,9 @@ fun NavControls(
             contentColor = SheetPalette.ink(dark),
         ),
     ) {
-        Row(
-            Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+        val content = @Composable {
             Column(Modifier.weight(1f)) {
-                // Both lines SHRINK to fit rather than wrap or ellipsise: the 54dp buttons (and
-                // any Interface-size scale) squeezed the column and "1 hr 25 min" wrapped rough,
-                // while ellipsis on the second line cut off the arrival TIME (user 2026-07-11).
+                // Both lines SHRINK to fit rather than wrap or ellipsise
                 FitText(
                     formatDuration(remainingSeconds),
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
@@ -725,19 +726,37 @@ fun NavControls(
                     color = SheetPalette.dim(dark),
                 )
             }
-            Spacer(Modifier.width(8.dp))
-            // Steps is icon-only so the row stays compact (the left ETA column can
-            // grow with a longer "X mi · 7:42 PM"); End keeps its label.
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
-                // Bigger driving targets (user 2026-07-11, car-screen use): 54dp buttons,
-                // 26dp glyphs; End matches the height so the row reads as one control set.
-                FilledTonalIconButton(onClick = onSteps, modifier = Modifier.size(54.dp)) {
-                    Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.nav_steps), modifier = Modifier.size(26.dp))
-                }
-                Button(onClick = onStop, modifier = Modifier.height(54.dp)) {
-                    Text(stringResource(R.string.nav_end), maxLines = 1, softWrap = false)
+            if (!landscape) Spacer(Modifier.width(8.dp)) else Spacer(Modifier.height(8.dp))
+            // Steps is icon-only so the row stays compact; End keeps its label.
+            val buttons = @Composable {
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    FilledTonalIconButton(onClick = onSteps, modifier = Modifier.size(54.dp)) {
+                        Icon(Icons.AutoMirrored.Filled.List, contentDescription = stringResource(R.string.nav_steps), modifier = Modifier.size(26.dp))
+                    }
+                    Button(onClick = onStop, modifier = Modifier.height(54.dp)) {
+                        Text(stringResource(R.string.nav_end), maxLines = 1, softWrap = false)
+                    }
                 }
             }
+            if (landscape) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) { buttons() }
+            } else {
+                buttons()
+            }
+        }
+
+        if (landscape) {
+            Column(
+                Modifier.fillMaxWidth().padding(18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) { content() }
+        } else {
+            Row(
+                Modifier.fillMaxWidth().padding(horizontal = 18.dp, vertical = 14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) { content() }
         }
     }
 }

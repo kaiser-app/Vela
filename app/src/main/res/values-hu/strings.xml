@@ -455,6 +455,7 @@
     <string name="search_close_cd">Keresés bezárása</string>
     <string name="search_placeholder">Keresés</string>
     <string name="search_offline">Offline</string>
+    <string name="search_label">Keresés</string>
     <string name="search_clear_cd">Keresés törlése</string>
     <string name="search_settings_cd">Beállítások</string>
 
