@@ -719,8 +719,8 @@
     <string name="settings_hub_diagnostics_sub">Crash reports, trips, compatibility</string>
     <string name="settings_hub_about_sub">Version, updates, support</string>
     <string name="settings_theme_amoled">AMOLED black</string>
-    <string name="settings_traffic_lights">Traffic-light guidance</string>
-    <string name="settings_traffic_lights_hint">Spoken landmark cues: pass the light, then turn. English only, off by default.</string>
+    <string name="settings_traffic_lights">Traffic sign &amp; light alerts</string>
+    <string name="settings_traffic_lights_hint">Spoken heads-up as you approach a stop sign, traffic light, level crossing, or crosswalk (from OpenStreetMap data — coverage depends on how well your area is mapped). Works in any supported language. On by default.</string>
     <string name="settings_softkeys" translatable="false">Hardware softkeys</string>
     <string name="settings_softkeys_hint" translatable="false">Zoom the map with the phone\'s two soft keys. Keypad phones only.</string>
     <string name="settings_softkeys_calibrate" translatable="false">Calibrate soft keys</string>

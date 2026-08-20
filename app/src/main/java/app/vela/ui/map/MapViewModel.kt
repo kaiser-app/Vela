@@ -5325,6 +5325,10 @@ class MapViewModel @Inject constructor(
             controlsBox = null // the box cache is superseded; the post-nav viewport refresh repaints fresh
             _state.update { it.copy(trafficControls = kept) }
             navSession?.setTrafficControls(kept)
+            // Wire the real "Traffic sign & light alerts" setting into the engine (previously this
+            // pref was write-only — see NavigationSettings.kt / settings_traffic_lights_hint fix).
+            val alertPrefs = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
+            navSession?.setTrafficAlertsEnabled(alertPrefs.getBoolean("nav_traffic_lights", true))
         }
     }
 

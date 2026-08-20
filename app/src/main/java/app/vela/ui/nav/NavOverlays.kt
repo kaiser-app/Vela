@@ -191,7 +191,18 @@ fun ManeuverBanner(
             }
             .then(
                 if (previewing) Modifier.clickable(onClick = onExitPreview) else Modifier.focusable(),
-            ),
+            )
+            // TEMP DEBUG (traffic-control/landscape investigation, 2026-08-20): confirms whether the
+            // banner composes at all in landscape and what size it actually measures. If this never
+            // logs, ManeuverBanner isn't being composed (check the `state.navigating` gate upstream in
+            // MapScreen.kt). If it logs with height≈0, something is collapsing its content instead.
+            .onGloballyPositioned {
+                android.util.Log.d(
+                    "VelaNavBanner",
+                    "composed landscape=$isLandscape size=${it.size.width}x${it.size.height} " +
+                        "text='${text.take(40)}' type=$type distanceM=$distanceMeters",
+                )
+            },
         // Softer, more current shape than the stock card: big radius + a real shadow so the
         // banner floats over the map instead of sitting on it like a toolbar.
         shape = RoundedCornerShape(24.dp),
@@ -711,7 +722,19 @@ fun NavControls(
         ),
     ) {
         val content = @Composable {
-            Column(Modifier.weight(1f)) {
+            // BUG (2026-08-20, user-reported "huge empty black area in landscape"): this used to be
+            // Column(Modifier.weight(1f)). `weight()` here resolves against CARD's own ColumnScope
+            // (Card's content lambda is `@Composable ColumnScope.() -> Unit`, and this lambda is
+            // DEFINED inside that scope) — not against whatever Row/Column it's later INVOKED inside.
+            // In portrait, content() runs inside a real Row: the ParentData tag Compose attached is
+            // for Column-weight, so the real Row's layout pass doesn't recognise it and just ignores
+            // it (harmless no-op — Arrangement.SpaceBetween below was doing the actual left/right
+            // split all along). In landscape, content() runs inside a real Column: the SAME
+            // Column-weight tag now DOES match, so this block was told to fill 100% of the card's
+            // remaining height — pushing the button row all the way to the bottom and leaving a
+            // tall empty gap where a maneuver instruction would visually be expected. No weight
+            // needed at all: the natural (compact) height is what every visual spec here wants.
+            Column {
                 // Both lines SHRINK to fit rather than wrap or ellipsise
                 FitText(
                     formatDuration(remainingSeconds),

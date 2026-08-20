@@ -288,6 +288,11 @@ class NavSession @Inject constructor(
         alertEngine.setControls(controls)
     }
 
+    /** Mirrors the "Traffic sign & light alerts" setting (nav_traffic_lights pref) into the engine. */
+    fun setTrafficAlertsEnabled(enabled: Boolean) {
+        alertEngine.alertsEnabled = enabled
+    }
+
     fun onLocation(loc: LatLng, imperial: Boolean = false, speedMps: Double? = null, accuracyM: Double? = null, bearingDeg: Double? = null) {
         val s = _state.value
         val route = s.route ?: return
@@ -295,7 +300,13 @@ class NavSession @Inject constructor(
 
         // Traffic condition alerts (STOP signs, crossings, etc.)
         alertEngine.check(loc)?.let { kind ->
-            NavStringsRegistry.current().trafficAlert(kind)?.let { phrase ->
+            val phrase = NavStringsRegistry.current().trafficAlert(kind)
+            // TEMP DEBUG (traffic-control chain investigation, 2026-08-20): if "trigger emitted"
+            // logs in NavAlertEngine but THIS never logs a phrase, NavStrings.trafficAlert(kind) is
+            // returning null for the active language — check NavStringsRegistry.current() actually
+            // resolved to the expected language object.
+            android.util.Log.d("VelaTrafficAlert", "navloop kind=$kind phrase=$phrase lang=${NavStringsRegistry.current()}")
+            if (phrase != null) {
                 voice.speak(phrase, interrupt = false)
                 haptics.cue(app.vela.core.model.ManeuverType.STRAIGHT, approaching = true, mode = mode)
             }

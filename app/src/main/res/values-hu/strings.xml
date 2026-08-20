@@ -742,8 +742,8 @@
     <string name="settings_hub_diagnostics_sub">Hibajelentések, utak, kompatibilitás</string>
     <string name="settings_hub_about_sub">Verzió, frissítések, támogatás</string>
     <string name="settings_theme_amoled">AMOLED fekete</string>
-    <string name="settings_traffic_lights">Közlekedési lámpa útmutatás</string>
-    <string name="settings_traffic_lights_hint">Hangos tereptárgy-jelzések: menj el a lámpa mellett, aztán kanyarodj. Csak angolul, alapból kikapcsolva.</string>
+    <string name="settings_traffic_lights">Jelzőtábla- és lámpa-figyelmeztetés</string>
+    <string name="settings_traffic_lights_hint">Hangos figyelmeztetés, amikor stop táblához, közlekedési lámpához, vasúti átjáróhoz vagy zebrához közeledsz (OpenStreetMap-adatból — a lefedettség attól függ, mennyire van feltérképezve a környéked). Minden támogatott nyelven működik. Alapból bekapcsolva.</string>
 
     <!-- D-pad / softkey strings -->
     <string name="settings_softkeys">Hardveres funkciógombok</string>

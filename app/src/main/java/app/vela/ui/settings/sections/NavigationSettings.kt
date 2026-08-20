@@ -71,7 +71,7 @@ internal fun NavigationSettingsScreen(vm: MapViewModel, onBack: () -> Unit) {
             switchModifier = topRow,
         )
 
-        var trafficLights by remember { mutableStateOf(prefs.getBoolean("nav_traffic_lights", false)) }
+        var trafficLights by remember { mutableStateOf(prefs.getBoolean("nav_traffic_lights", true)) }
         GroupDivider()
         ToggleRow(
             label = stringResource(R.string.settings_traffic_lights),
