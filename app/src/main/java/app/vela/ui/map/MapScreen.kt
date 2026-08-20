@@ -1550,8 +1550,14 @@ fun MapScreen(
         // re-center button joining the stack when panned away / previewing a step. Hidden
         // while the along-route results own the bottom slot.
         if (state.navigating && state.results.isEmpty()) {
+            // LANDSCAPE (user 2026-08-20): 5 buttons at full FAB size (56dp) + 10dp gaps stack to
+            // ~320dp tall — on a ~390dp-tall landscape phone that top edge lands right where the
+            // compass sits (see compassTopPx above). Shrinking to small FABs + a tighter gap in
+            // landscape only (portrait has the vertical room to spare) keeps the whole stack clear
+            // of the compass without removing any button.
+            val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
             Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(if (landscape) 6.dp else 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
@@ -1559,50 +1565,94 @@ fun MapScreen(
                     .padding(end = 16.dp, bottom = navBarClearance),
             ) {
                 if (state.navCameraDetached || state.previewStepIndex != null || navZoomOverride) {
-                    FloatingActionButton(
-                        onClick = {
-                            vm.recenterNav()
-                            navRecenterTick++
-                        },
-                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                    ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                    if (landscape) {
+                        SmallFloatingActionButton(
+                            onClick = {
+                                vm.recenterNav()
+                                navRecenterTick++
+                            },
+                            modifier = Modifier.dpadHighlight(RoundedCornerShape(14.dp)),
+                        ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                    } else {
+                        FloatingActionButton(
+                            onClick = {
+                                vm.recenterNav()
+                                navRecenterTick++
+                            },
+                            modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                        ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                    }
                 }
                 // Whole-route overview (Google's fly-over): camera only, the drive keeps
                 // navigating; Re-center (above, it appears the moment this detaches the
                 // camera) glides straight back into the follow.
-                FloatingActionButton(
-                    onClick = {
-                        vm.navOverview()
-                        navOverviewTick++
-                    },
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
-                FloatingActionButton(
-                    onClick = vm::toggleVoice,
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) {
-                    Icon(
-                        if (state.voiceMuted) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
-                        contentDescription = if (state.voiceMuted) stringResource(R.string.nav_unmute_voice) else stringResource(R.string.nav_mute_voice),
-                    )
-                }
-                FloatingActionButton(
-                    onClick = {
-                        navSearchOpen = !navSearchOpen
-                        if (!navSearchOpen) focusManager.clearFocus()
-                    },
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.place_search_along_route)) }
+                if (landscape) {
+                    SmallFloatingActionButton(
+                        onClick = {
+                            vm.navOverview()
+                            navOverviewTick++
+                        },
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(14.dp)),
+                    ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
+                    SmallFloatingActionButton(
+                        onClick = vm::toggleVoice,
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(14.dp)),
+                    ) {
+                        Icon(
+                            if (state.voiceMuted) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+                            contentDescription = if (state.voiceMuted) stringResource(R.string.nav_unmute_voice) else stringResource(R.string.nav_mute_voice),
+                        )
+                    }
+                    SmallFloatingActionButton(
+                        onClick = {
+                            navSearchOpen = !navSearchOpen
+                            if (!navSearchOpen) focusManager.clearFocus()
+                        },
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(14.dp)),
+                    ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.place_search_along_route)) }
+                    SmallFloatingActionButton(
+                        onClick = {
+                            if (vm.voiceMicGranted()) startLocalVoice(toAi = true)
+                            else recordAudioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                        },
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(14.dp)),
+                    ) { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Assistant") }
+                } else {
+                    FloatingActionButton(
+                        onClick = {
+                            vm.navOverview()
+                            navOverviewTick++
+                        },
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
+                    FloatingActionButton(
+                        onClick = vm::toggleVoice,
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    ) {
+                        Icon(
+                            if (state.voiceMuted) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
+                            contentDescription = if (state.voiceMuted) stringResource(R.string.nav_unmute_voice) else stringResource(R.string.nav_mute_voice),
+                        )
+                    }
+                    FloatingActionButton(
+                        onClick = {
+                            navSearchOpen = !navSearchOpen
+                            if (!navSearchOpen) focusManager.clearFocus()
+                        },
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.place_search_along_route)) }
 
-                // Vela AI - Voice interaction during navigation
-                FloatingActionButton(
-                    onClick = {
-                        if (vm.voiceMicGranted()) startLocalVoice(toAi = true)
-                        else recordAudioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                    },
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Assistant") }
+                    // Vela AI - Voice interaction during navigation
+                    FloatingActionButton(
+                        onClick = {
+                            if (vm.voiceMicGranted()) startLocalVoice(toAi = true)
+                            else recordAudioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
+                        },
+                        containerColor = MaterialTheme.colorScheme.primaryContainer,
+                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    ) { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Assistant") }
+                }
             }
         }
 
@@ -1762,9 +1812,17 @@ fun MapScreen(
                         trafficRatio = state.activeRoute?.trafficRatio,
                         // Measured AFTER the padding → the bar surface itself; navBarClearance adds the
                         // padding + gap back. Everything stacked above the bar keys off this.
+                        //
+                        // LANDSCAPE (user 2026-08-20): this used to sit at CenterStart, independently of
+                        // SpeedWidget's BottomStart below — on a short landscape phone the two could
+                        // overlap depending on font scale, and navBarClearance's "bar sits at the
+                        // bottom" assumption silently broke since the bar was actually mid-screen.
+                        // Anchoring both to BottomStart makes navBarClearance's existing math correct
+                        // again instead of needing a second, parallel offset. Narrower (260dp vs the old
+                        // 320dp) so it doesn't crowd the map in landscape.
                         modifier = Modifier
-                            .align(if (landscape) Alignment.CenterStart else Alignment.BottomCenter)
-                            .then(if (landscape) Modifier.width(320.dp) else Modifier.fillMaxWidth())
+                            .align(if (landscape) Alignment.BottomStart else Alignment.BottomCenter)
+                            .then(if (landscape) Modifier.width(260.dp) else Modifier.fillMaxWidth())
                             .onGloballyPositioned { navBarHeightPx = it.size.height },
                     )
                 }
