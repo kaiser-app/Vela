@@ -5324,6 +5324,7 @@ class MapViewModel @Inject constructor(
             navControlsKey = key
             controlsBox = null // the box cache is superseded; the post-nav viewport refresh repaints fresh
             _state.update { it.copy(trafficControls = kept) }
+            navSession?.setTrafficControls(kept)
         }
     }
 

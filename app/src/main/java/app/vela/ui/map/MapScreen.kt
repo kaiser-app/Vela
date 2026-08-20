@@ -5,6 +5,7 @@ import android.app.Activity
 import android.content.ContextWrapper
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Build
 import android.view.WindowManager
@@ -223,13 +224,13 @@ private const val USE_MAPTILER = false
 // Landscape side-panel width: half the screen up to a cap, floored at the old 400dp - the fixed
 // 400 read too narrow on wide screens (user 2026-07-23); Google's landscape panel takes roughly
 // half a phone's width too. Computed per-configuration in sidePanelWidth().
-private val SIDE_PANEL_WIDTH_MIN = 400.dp
-private val SIDE_PANEL_WIDTH_MAX = 520.dp
+private val SIDE_PANEL_WIDTH_MIN = 320.dp
+private val SIDE_PANEL_WIDTH_MAX = 420.dp
 
 @Composable
 private fun sidePanelWidth(): androidx.compose.ui.unit.Dp {
     val w = LocalConfiguration.current.screenWidthDp
-    return (w * 0.5f).dp.coerceIn(SIDE_PANEL_WIDTH_MIN, SIDE_PANEL_WIDTH_MAX)
+    return (w * 0.33f).dp.coerceIn(SIDE_PANEL_WIDTH_MIN, SIDE_PANEL_WIDTH_MAX)
 }
 
 @Composable
@@ -269,7 +270,7 @@ fun MapScreen(
     // bar + the chips beside it, Google's landscape layout) and the top-right corner stack
     // (layers button, compass) rises a row - on a phone's ~390dp landscape height the stacked
     // layout pushed the compass down into the parking/locate FABs (user 2026-07-15).
-    val landscapeChrome = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     // Mirrored into the VM too: the route-through-here press is gated on the chooser being
     // minimized (stray building taps while the full picker covered the map added stops).
     LaunchedEffect(dirMinimized) { vm.onDirectionsCollapsed(dirMinimized) }
@@ -286,16 +287,16 @@ fun MapScreen(
         // Transit step-by-step guidance (issue #232): the bottom pane covers ~48%, so the per-leg
         // camera fit frames the guided leg in the visible top strip, not behind the pane.
         state.transitNav != null -> (screenHeightPx * 0.48f).toInt()
-        placeSheetUp -> if (landscapeChrome) 0 else (screenHeightPx * 0.56f).toInt()
+        placeSheetUp -> if (isLandscape) 0 else (screenHeightPx * 0.56f).toInt()
         state.directionsOpen && !state.navigating ->
             (screenHeightPx * (if (dirMinimized) 0.14f else 0.58f)).toInt()
         // Results bottom sheet at peek covers ~the bottom half: frame the result pins
         // in the visible top half, not behind the sheet.
         state.results.isNotEmpty() && state.selected == null && !state.resultsCollapsed &&
-            !state.navigating -> if (landscapeChrome) 0 else (screenHeightPx * 0.50f).toInt()
+            !state.navigating -> if (isLandscape) 0 else (screenHeightPx * 0.50f).toInt()
         else -> 0
     }
-    val cameraLeftInset = if (!landscapeChrome) 0 else when {
+    val cameraLeftInset = if (!isLandscape) 0 else when {
         state.streetView != null || state.streetViewLoading -> 0
         placeSheetUp -> sidePanelWidthPx
         state.results.isNotEmpty() && state.selected == null && !state.resultsCollapsed &&
@@ -752,9 +753,10 @@ fun MapScreen(
     } else {
         null
     }
-    if (showAsrOffer)
-    // Reflect whether the on-device model is present, so the mic + Settings update without a relaunch.
-    LaunchedEffect(Unit) { vm.refreshAsr() }
+    if (showAsrOffer) {
+        // Reflect whether the on-device model is present, so the mic + Settings update without a relaunch.
+        LaunchedEffect(Unit) { vm.refreshAsr() }
+    }
     // POI visibility prefs act immediately (clear + re-resolve), not on the next pan.
     LaunchedEffect(
         app.vela.ui.MapPoiPrefs.showPois.value,
@@ -1254,7 +1256,7 @@ fun MapScreen(
             fun navRomanize(s: String): String =
                 if (s.isEmpty() || state.roadNameLatin.isEmpty()) s
                 else app.vela.core.voice.SpokenScript.forDisplay(s, navUiLang, state.roadNameLatin)
-            val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+            val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(280.dp, 400.dp) else androidx.compose.ui.unit.Dp.Unspecified
             ManeuverBanner(
                 offRoute = state.nav.offRoute,
                 text = navRomanize(if (previewing) (shown?.instruction.orEmpty()) else state.maneuverText),
@@ -1294,13 +1296,14 @@ fun MapScreen(
                 onPreviewPrev = { if (shownIdx - 1 <= liveStep) vm.clearPreview() else vm.previewStep(shownIdx - 1) },
                 onExitPreview = vm::clearPreview,
                 modifier = Modifier
-                    .align(if (landscape) Alignment.TopStart else Alignment.TopCenter)
+                    .align(if (isLandscape) Alignment.TopStart else Alignment.TopCenter)
                     .statusBarsPadding()
-                    .then(if (landscape) Modifier.width(320.dp).padding(start = 16.dp, top = 16.dp) else Modifier.fillMaxWidth().padding(12.dp))
+                    .then(if (isLandscape) Modifier.width(navWidth).padding(start = 16.dp, top = 16.dp) else Modifier.fillMaxWidth().padding(12.dp))
                     // Report the banner's bottom edge so the compass can drop just below it (any height).
                     .onGloballyPositioned { navBannerBottomPx = (it.positionInRoot().y + it.size.height).roundToInt() },
             )
-        } else if (state.pickOnMap == null && state.transitNav == null) {
+        }
+else if (state.pickOnMap == null && state.transitNav == null) {
             // (Hidden during transit step-by-step guidance too — its bottom pane owns the screen
             // with the map above it, and a floating search bar over the guided map read as
             // browse-mode clutter once the pane stopped being full-screen, issue #232.)
@@ -1329,7 +1332,7 @@ fun MapScreen(
                     // the field, which flipped searchOpen right back - the search page could
                     // never open. Instead the Row stays and only the MODIFIERS change (bar grows
                     // full width, chips drop out after it), so the field node never moves.
-                    val landscapeOneLine = landscapeChrome && state.selected == null &&
+                    val landscapeOneLine = isLandscape && state.selected == null &&
                         state.results.isEmpty() && !state.directionsOpen
                     // Directions mode: the search bar swaps for the Google-style endpoints card
                     // (origin / stops / destination, swap, back) — the rows that used to sit in
@@ -1417,7 +1420,7 @@ fun MapScreen(
                         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.statusBarsPadding().padding(horizontal = 16.dp)) {
                             Box(Modifier.fillMaxWidth()) { searchBar() }
                         }
-                    } else if (!(state.selected != null && placeSheetExpanded && !searchOpen && !landscapeChrome &&
+                    } else if (!(state.selected != null && placeSheetExpanded && !searchOpen && !isLandscape &&
                         placeSheetTopPx < screenHeightPx * 0.40f) &&
                         !(state.directionsOpen && !searchOpen)
                     ) {
@@ -1566,63 +1569,54 @@ fun MapScreen(
         // re-center button joining the stack when panned away / previewing a step. Hidden
         // while the along-route results own the bottom slot.
         if (state.navigating && state.results.isEmpty()) {
-            val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+            val fabSize = if (isLandscape) 44.dp else 56.dp
+            val iconSize = if (isLandscape) 20.dp else 24.dp
 
-            // Left side FABs (Landscape only): Recenter + Overview
-            if (landscape) {
+            // Left side FABs (Landscape only): Recenter
+            if (isLandscape) {
                 Column(
                     Modifier
                         .align(Alignment.CenterStart)
                         .padding(start = 16.dp, top = 220.dp) // Below NavControls
                         .navigationBarsPadding(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     if (state.navCameraDetached || state.previewStepIndex != null || navZoomOverride) {
                         FloatingActionButton(
-                            onClick = {
-                                vm.recenterNav()
-                                navRecenterTick++
-                            },
-                            modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                        ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
+                            onClick = { vm.recenterNav(); navRecenterTick++ },
+                            modifier = Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)),
+                        ) { Icon(Icons.Default.MyLocation, contentDescription = null, modifier = Modifier.size(iconSize)) }
                     }
-                    FloatingActionButton(
-                        onClick = {
-                            vm.navOverview()
-                            navOverviewTick++
-                        },
-                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                    ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
                 }
             }
 
             // Right side / Bottom-right FAB stack
             Column(
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(if (isLandscape) 8.dp else 10.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
-                    .align(if (landscape) Alignment.CenterEnd else Alignment.BottomEnd)
+                    .align(if (isLandscape) Alignment.CenterEnd else Alignment.BottomEnd)
                     .navigationBarsPadding()
-                    .padding(end = 16.dp, bottom = if (landscape) 0.dp else navBarClearance),
+                    .padding(end = 16.dp, bottom = if (isLandscape) 0.dp else navBarClearance),
             ) {
-                if (landscape) {
+                if (isLandscape) {
                     // C, B, A in landscape vertical order
                     FloatingActionButton(
                         onClick = onOpenSettings,
                         containerColor = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                    ) { Icon(Icons.Default.Settings, contentDescription = null) }
+                        modifier = Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)),
+                    ) { Icon(Icons.Default.Settings, contentDescription = null, modifier = Modifier.size(iconSize)) }
                     
                     if (onMic != null) {
                         FloatingActionButton(
                             onClick = onMic,
                             containerColor = MaterialTheme.colorScheme.surface,
-                            modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                        ) { Icon(Icons.Default.Mic, contentDescription = null) }
+                            modifier = Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)),
+                        ) { Icon(Icons.Default.Mic, contentDescription = null, modifier = Modifier.size(iconSize)) }
                     }
                 }
 
-                if (!landscape) {
+                if (!isLandscape) {
                     if (state.navCameraDetached || state.previewStepIndex != null || navZoomOverride) {
                         FloatingActionButton(
                             onClick = {
@@ -1632,23 +1626,25 @@ fun MapScreen(
                             modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
                         ) { Icon(Icons.Default.MyLocation, contentDescription = stringResource(R.string.mapscreen_recenter)) }
                     }
-                    // Whole-route overview (Google's fly-over)
-                    FloatingActionButton(
-                        onClick = {
-                            vm.navOverview()
-                            navOverviewTick++
-                        },
-                        modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                    ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview)) }
                 }
+
+                // Whole-route overview
+                FloatingActionButton(
+                    onClick = {
+                        vm.navOverview()
+                        navOverviewTick++
+                    },
+                    modifier = if (isLandscape) Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)) else Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                ) { Icon(Icons.Default.ZoomOutMap, contentDescription = stringResource(R.string.nav_overview), modifier = if (isLandscape) Modifier.size(iconSize) else Modifier) }
 
                 FloatingActionButton(
                     onClick = vm::toggleVoice,
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                    modifier = if (isLandscape) Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)) else Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
                 ) {
                     Icon(
                         if (state.voiceMuted) Icons.Default.VolumeOff else Icons.AutoMirrored.Filled.VolumeUp,
                         contentDescription = if (state.voiceMuted) stringResource(R.string.nav_unmute_voice) else stringResource(R.string.nav_mute_voice),
+                        modifier = if (isLandscape) Modifier.size(iconSize) else Modifier
                     )
                 }
                 FloatingActionButton(
@@ -1656,8 +1652,8 @@ fun MapScreen(
                         navSearchOpen = !navSearchOpen
                         if (!navSearchOpen) focusManager.clearFocus()
                     },
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.place_search_along_route)) }
+                    modifier = if (isLandscape) Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)) else Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                ) { Icon(Icons.Default.Search, contentDescription = stringResource(R.string.place_search_along_route), modifier = if (isLandscape) Modifier.size(iconSize) else Modifier) }
 
                 // Vela AI - Voice interaction during navigation
                 FloatingActionButton(
@@ -1666,8 +1662,8 @@ fun MapScreen(
                         else recordAudioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
                     },
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    modifier = Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
-                ) { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Assistant") }
+                    modifier = if (isLandscape) Modifier.size(fabSize).dpadHighlight(RoundedCornerShape(12.dp)) else Modifier.dpadHighlight(RoundedCornerShape(16.dp)),
+                ) { Icon(Icons.Default.AutoAwesome, contentDescription = "AI Assistant", modifier = if (isLandscape) Modifier.size(iconSize) else Modifier) }
             }
         }
 
@@ -1811,12 +1807,12 @@ fun MapScreen(
 
             // slot (Google's in-nav list does the same); clearing it brings the bar back.
             state.navigating && state.results.isEmpty() -> {
-                val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+                val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(280.dp, 400.dp) else androidx.compose.ui.unit.Dp.Unspecified
                 Box(
                     Modifier
                         .fillMaxSize()
                         .navigationBarsPadding()
-                        .padding(if (landscape) 16.dp else 0.dp)
+                        .padding(if (isLandscape) 16.dp else 0.dp)
                 ) {
                     NavControls(
                         remainingDistanceMeters = state.nav.remainingDistance,
@@ -1828,8 +1824,8 @@ fun MapScreen(
                         // Measured AFTER the padding → the bar surface itself; navBarClearance adds the
                         // padding + gap back. Everything stacked above the bar keys off this.
                         modifier = Modifier
-                            .align(if (landscape) Alignment.CenterStart else Alignment.BottomCenter)
-                            .then(if (landscape) Modifier.width(320.dp) else Modifier.fillMaxWidth())
+                            .align(if (isLandscape) Alignment.BottomStart else Alignment.BottomCenter)
+                            .then(if (isLandscape) Modifier.width(navWidth) else Modifier.fillMaxWidth())
                             .onGloballyPositioned { navBarHeightPx = it.size.height },
                     )
                 }
@@ -1932,8 +1928,8 @@ fun MapScreen(
                 // so the map and its right-side buttons stay usable beside it (Google's
                 // landscape layout, user 2026-07-20).
                 modifier = Modifier
-                    .align(if (landscapeChrome) Alignment.BottomStart else Alignment.BottomCenter)
-                    .then(if (landscapeChrome) Modifier.widthIn(max = sidePanelWidthDp) else Modifier)
+                    .align(if (isLandscape) Alignment.BottomStart else Alignment.BottomCenter)
+                    .then(if (isLandscape) Modifier.widthIn(max = sidePanelWidthDp) else Modifier)
                     // Live top edge for the layers button's overlap gate (see placeSheetTopPx).
                     .onGloballyPositioned { placeSheetTopPx = it.positionInRoot().y.roundToInt() },
             )
@@ -1964,8 +1960,8 @@ fun MapScreen(
                 minimizeTick = resultsPanTick,
                 // Landscape: left side panel like the place sheet (see its modifier note).
                 modifier = Modifier
-                    .align(if (landscapeChrome) Alignment.BottomStart else Alignment.BottomCenter)
-                    .then(if (landscapeChrome) Modifier.widthIn(max = sidePanelWidthDp) else Modifier),
+                    .align(if (isLandscape) Alignment.BottomStart else Alignment.BottomCenter)
+                    .then(if (isLandscape) Modifier.widthIn(max = sidePanelWidthDp) else Modifier),
               )
             // Imported Google list preview: offer to save (nothing persisted until tapped).
             // A pill under the search bar, clear of the results sheet at the bottom.
@@ -2132,9 +2128,9 @@ fun MapScreen(
             state.streetView == null && !state.streetViewLoading
         // True while the landscape left panel (place sheet or results, any detent) is on screen -
         // bottom-LEFT chrome (scale bar) yields to it and the attribution centers in the strip.
-        val sidePanelUp = landscapeChrome &&
+        val sidePanelUp = isLandscape &&
             (placeSheetUp || (state.results.isNotEmpty() && state.selected == null && !searchOpen))
-        if (fabChromeOk && (landscapeChrome || (state.selected == null && !resultsShown))) {
+        if (fabChromeOk && (isLandscape || (state.selected == null && !resultsShown))) {
             // Stock M3 FAB, deliberately: a Google-style flat circle was tried (2026-07-08)
             // and reverted — every surface tone melted into the dark tiles.
             FloatingActionButton(
@@ -2309,7 +2305,7 @@ fun MapScreen(
             // flag while the card never grows, so the button vanished with the card unmoved
             // (the same phantom-expanded class as the search-bar/layers hides).
             // Landscape needs none of this: the side panel leaves the normal FABs standing.
-            if (fabChromeOk && !landscapeChrome && state.selected != null &&
+            if (fabChromeOk && !isLandscape && state.selected != null &&
                 state.pickOnMap == null && placeSheetTopPx > screenHeightPx * 0.55f
             ) {
                 FloatingActionButton(
@@ -2340,19 +2336,19 @@ fun MapScreen(
             // measurement must not show the button over the pano/picker - both are excluded.
             val layersDensity = LocalDensity.current
             val layersButtonBottomPx = WindowInsets.statusBars.getTop(layersDensity) +
-                with(layersDensity) { ((if (landscapeChrome) 74.dp else 128.dp) + 42.dp + 8.dp).toPx() }
+                with(layersDensity) { ((if (isLandscape) 74.dp else 128.dp) + 42.dp + 8.dp).toPx() }
             // Landscape short-circuits the vertical test: the sheet is the width-capped LEFT
             // panel there, which never reaches the top-right corner whatever its detent.
             val clearOfPlaceSheet = state.selected == null ||
                 (
                     state.streetView == null && !state.streetViewLoading && state.pickOnMap == null &&
-                        (landscapeChrome || placeSheetTopPx > layersButtonBottomPx)
+                        (isLandscape || placeSheetTopPx > layersButtonBottomPx)
                     )
             // The expanded/results hides are portrait-only too: the landscape panel caps below
             // the search bar and never reaches this corner at ANY detent.
             if (app.vela.ui.LayersButton.on.value && !searchOpen &&
                 !state.navigating && !state.replaying &&
-                (!resultsShown || landscapeChrome) &&
+                (!resultsShown || isLandscape) &&
                 clearOfPlaceSheet
             ) {
                 val ctx = androidx.compose.ui.platform.LocalContext.current
@@ -2364,7 +2360,7 @@ fun MapScreen(
                         .statusBarsPadding()
                         // One-line landscape chrome: the chips sit beside the bar, so the
                         // button rises a whole row (matches the compass margin in VelaMapView).
-                        .padding(top = if (landscapeChrome) 74.dp else 128.dp, end = 14.dp),
+                        .padding(top = if (isLandscape) 74.dp else 128.dp, end = 14.dp),
                 ) {
                     Surface(
                         color = SheetPalette.bg(darkTheme).copy(alpha = 0.9f),
@@ -2660,7 +2656,7 @@ private fun SearchResults(
     val peekL = screenH * 0.42f
     // Landscape (side-panel layout): expanded caps below the search bar - the full-width bar
     // deliberately stays in landscape, so the panel must stop under it, not slide beneath it.
-    val resultsLandscape = LocalConfiguration.current.screenWidthDp > screenH
+    val resultsLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     val expL = if (resultsLandscape) minOf(screenH * 0.82f, maxOf(screenH - 104f, screenH * 0.55f)) else screenH * 0.82f
     val listH = remember { Animatable(if (collapsed) 0f else if (expanded) expL else peekL) }
     val resultsSettleSpec = remember { spring<Float>(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = 350f) }

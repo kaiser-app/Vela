@@ -1,6 +1,7 @@
 package app.vela.ui.map
 
 import android.graphics.Bitmap
+import android.content.res.Configuration
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.Path
@@ -436,19 +437,21 @@ fun VelaMapView(
         // LANDSCAPE: the bare-map chrome is ONE line (chips beside the bar, MapScreen's
         // landscapeChrome) and the layers button rises to statusBar+74dp, so both compass
         // slots rise a row too - the stacked offsets pushed the compass down into the
+        // slots rise a row too - the stacked offsets pushed the compass down into the
         // parking/locate FABs on a ~390dp-tall landscape phone (user 2026-07-15).
         else -> statusBarTopPx + with(density) {
-            val landscape = LocalConfiguration.current.screenWidthDp > LocalConfiguration.current.screenHeightDp
+            val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
             val layersOn = app.vela.ui.LayersButton.on.value
             when {
-                layersOn && landscape -> 140.dp
+                layersOn && isLandscape -> 140.dp
                 layersOn -> 200.dp
-                landscape -> 95.dp
+                isLandscape -> 95.dp
                 else -> 122.dp
             }.roundToPx()
         }
     }
-    val compassRightPx = with(density) { 8.dp.roundToPx() }
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val compassRightPx = with(density) { (if (isLandscape) 72.dp else 8.dp).roundToPx() }
     val poiTap = rememberUpdatedState(onPoiTap)
     val mapTap = rememberUpdatedState(onMapTap)
     val svMapTap = rememberUpdatedState(onSvMapTap)
@@ -3393,7 +3396,7 @@ private fun ensureLayers(style: Style) {
         // sparse, one per junction.
         val firstSymbol = style.layers.firstOrNull { it is SymbolLayer }?.id
         val visible = SymbolLayer(CONTROLS_LAYER, CONTROLS_SRC).apply {
-            setMinZoom(16f)
+            setMinZoom(14f)
             setProperties(
                 PropertyFactory.iconImage(Expression.get("icon")),
                 // Zoom-scaled so they read at nav zoom (~16-17.5) and grow as you zoom in — the flat 0.55
@@ -3417,7 +3420,7 @@ private fun ensureLayers(style: Style) {
         // one. Vela's own layers are above it and place before it, so it can never evict a POI.
         style.addLayerBelow(
             SymbolLayer(CONTROLS_CLAIM_LAYER, CONTROLS_SRC).apply {
-                setMinZoom(16f)
+                setMinZoom(14f)
                 setProperties(
                     PropertyFactory.iconImage(Expression.get("icon")),
                     PropertyFactory.iconSize(controlsSize),

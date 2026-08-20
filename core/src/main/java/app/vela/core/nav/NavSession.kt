@@ -297,6 +297,7 @@ class NavSession @Inject constructor(
         alertEngine.check(loc)?.let { kind ->
             NavStringsRegistry.current().trafficAlert(kind)?.let { phrase ->
                 voice.speak(phrase, interrupt = false)
+                haptics.cue(app.vela.core.model.ManeuverType.STRAIGHT, approaching = true, mode = mode)
             }
         }
 

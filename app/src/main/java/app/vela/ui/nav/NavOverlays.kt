@@ -1,6 +1,7 @@
 package app.vela.ui.nav
 
 import androidx.compose.animation.core.Animatable
+import android.content.res.Configuration
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
@@ -145,12 +146,11 @@ fun ManeuverBanner(
     // the 54dp glyph + full paddings buried the map on sub-500dp-tall displays, so the banner
     // shrinks its chrome there. Ordinary phones and tall head units never trip the gate.
     val compact = androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp < 500
-    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >
-        androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    val isLandscape = androidx.compose.ui.platform.LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
     
     Card(
         modifier
-            .then(if (landscape) Modifier.widthIn(max = 600.dp) else Modifier.fillMaxWidth())
+            .then(if (isLandscape) Modifier.widthIn(max = 400.dp) else Modifier.fillMaxWidth())
             .graphicsLayer { translationX = offsetX.value }
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
@@ -689,8 +689,8 @@ fun NavControls(
     modifier: Modifier = Modifier,
 ) {
     val dark = isAppInDarkTheme()
-    val landscape = androidx.compose.ui.platform.LocalConfiguration.current.screenWidthDp >
-        androidx.compose.ui.platform.LocalConfiguration.current.screenHeightDp
+    val isLandscape = androidx.compose.ui.platform.LocalConfiguration.current.orientation ==
+        android.content.res.Configuration.ORIENTATION_LANDSCAPE
 
     // Colour the ETA by live traffic (Google-style): green free-flowing → amber →
     // red. Default ink when there's no live data (offline / traffic-less route).
@@ -701,7 +701,7 @@ fun NavControls(
         else -> SheetPalette.TrafficGreen
     }
     Card(
-        modifier.then(if (landscape) Modifier.widthIn(max = 600.dp) else Modifier.fillMaxWidth()),
+        modifier.then(if (isLandscape) Modifier.widthIn(max = 400.dp) else Modifier.fillMaxWidth()),
         // Match the banner's treatment: generous radius + shadow, a floating pill not a bar.
         shape = RoundedCornerShape(28.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -726,7 +726,7 @@ fun NavControls(
                     color = SheetPalette.dim(dark),
                 )
             }
-            if (!landscape) Spacer(Modifier.width(8.dp)) else Spacer(Modifier.height(8.dp))
+            if (!isLandscape) Spacer(Modifier.width(8.dp)) else Spacer(Modifier.height(8.dp))
             // Steps is icon-only so the row stays compact; End keeps its label.
             val buttons = @Composable {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -738,14 +738,14 @@ fun NavControls(
                     }
                 }
             }
-            if (landscape) {
+            if (isLandscape) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) { buttons() }
             } else {
                 buttons()
             }
         }
 
-        if (landscape) {
+        if (isLandscape) {
             Column(
                 Modifier.fillMaxWidth().padding(18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,

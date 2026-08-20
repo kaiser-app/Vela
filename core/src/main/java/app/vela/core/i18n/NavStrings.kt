@@ -1822,6 +1822,9 @@ object HeNavStrings : NavStrings {
 object HuNavStrings : NavStrings {
     override val locale: Locale = Locale("hu", "HU")
 
+    override fun passLights(count: Int): String =
+        if (count <= 1) "Menj el a közlekedési lámpa mellett" else "Menj el $count közlekedési lámpa mellett"
+
     private fun modWord(mod: String?): String = when ((mod ?: "").trim().lowercase()) {
         "left" -> "balra"
         "right" -> "jobbra"
