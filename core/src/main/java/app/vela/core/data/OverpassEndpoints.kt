@@ -38,27 +38,30 @@ object OverpassEndpoints {
      * [onBody] must fully consume the body before it returns; it runs inside the response's `use` block.
      */
     fun <T> run(http: OkHttpClient, query: String, onBody: (ResponseBody) -> T): T? {
+        // Field data (vela-diag export, 2026-08-21): 5 of 9 real-world attempts failed and 3 more
+        // returned an empty result — mostly transient mirror flakiness, not a hard block, based on
+        // the mix of failure types logged below. A couple of short-backoff retries per endpoint
+        // before moving on costs at most ~1s extra and measurably improves the odds of a route this
+        // actually succeeds on, without needing the bigger pre-fetch/caching work (tracked
+        // separately) to land first.
+        val maxAttemptsPerEndpoint = 2
         for (ep in ENDPOINTS) {
-            val url = "$ep?data=" + URLEncoder.encode(query, "UTF-8")
-            val req = Request.Builder().url(url).header("User-Agent", USER_AGENT).build()
-            try {
-                http.newCall(req).execute().use { resp ->
-                    val body = resp.body
-                    if (resp.isSuccessful && body != null) return onBody(body)
-                    // TEMP DEBUG (traffic-control chain investigation, 2026-08-20): field diagnostics
-                    // (vela-diag export) showed "camera fetch failed" / "showing 0" repeatedly on a
-                    // real device, with no way to tell WHY — this line was previously a silent
-                    // fall-through. Logging the actual status code here is what tells us whether a
-                    // mirror is rate-limiting (429), erroring (5xx), or something else entirely.
-                    android.util.Log.w("VelaOverpass", "non-2xx from $ep: HTTP ${resp.code}")
+            for (attempt in 1..maxAttemptsPerEndpoint) {
+                val url = "$ep?data=" + URLEncoder.encode(query, "UTF-8")
+                val req = Request.Builder().url(url).header("User-Agent", USER_AGENT).build()
+                try {
+                    http.newCall(req).execute().use { resp ->
+                        val body = resp.body
+                        if (resp.isSuccessful && body != null) return onBody(body)
+                        android.util.Log.w("VelaOverpass", "non-2xx from $ep (attempt $attempt/$maxAttemptsPerEndpoint): HTTP ${resp.code}")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.w("VelaOverpass", "exception from $ep (attempt $attempt/$maxAttemptsPerEndpoint): ${e.javaClass.simpleName}: ${e.message}")
                 }
-            } catch (e: Exception) {
-                // TEMP DEBUG: network/timeout/parse error on this endpoint — previously silently
-                // swallowed. This is the line that actually explains a "fetch failed" event.
-                android.util.Log.w("VelaOverpass", "exception from $ep: ${e.javaClass.simpleName}: ${e.message}")
+                if (attempt < maxAttemptsPerEndpoint) Thread.sleep(400L * attempt)
             }
         }
-        android.util.Log.e("VelaOverpass", "ALL ${ENDPOINTS.size} endpoints failed for query (first 80 chars): ${query.take(80)}")
+        android.util.Log.e("VelaOverpass", "ALL ${ENDPOINTS.size} endpoints failed (×$maxAttemptsPerEndpoint attempts each) for query (first 80 chars): ${query.take(80)}")
         return null
     }
 }

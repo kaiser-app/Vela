@@ -1819,11 +1819,19 @@ else if (state.pickOnMap == null && state.transitNav == null) {
             // slot (Google's in-nav list does the same); clearing it brings the bar back.
             state.navigating && state.results.isEmpty() -> {
                 val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(260.dp, 320.dp) else androidx.compose.ui.unit.Dp.Unspecified
+                // LANDSCAPE (user 2026-08-21, 3rd round): this card and ManeuverBanner were each
+                // anchored independently — banner from the TOP, this one from the BOTTOM — with no
+                // relationship between them. Same width/inset fixed the edges lining up in the *usual*
+                // case, but a tall banner (a long street name wrapping to 2-3 lines) could still grow
+                // down far enough to overlap this card, since neither knew about the other's size.
+                // Anchoring this one to TopStart, directly below the banner's OWN measured bottom edge
+                // (navBannerBottomPx — the exact same value the compass already uses for the same
+                // reason), removes the possibility of overlap structurally instead of hoping both
+                // cards' heights stay small enough on every device/screen/language.
+                val bannerBottomDp = with(LocalDensity.current) { navBannerBottomPx.toDp() }
                 Box(
                     Modifier
                         .fillMaxSize()
-                        // Was navigationBarsPadding() — see the ManeuverBanner modifier above for why
-                        // this needed to match its systemBarsPadding() exactly.
                         .systemBarsPadding()
                         .padding(if (isLandscape) 16.dp else 0.dp)
                 ) {
@@ -1843,8 +1851,19 @@ else if (state.pickOnMap == null && state.transitNav == null) {
                         // Measured AFTER the padding → the bar surface itself; navBarClearance adds the
                         // padding + gap back. Everything stacked above the bar keys off this.
                         modifier = Modifier
-                            .align(if (isLandscape) Alignment.BottomStart else Alignment.BottomCenter)
-                            .then(if (isLandscape) Modifier.width(navWidth) else Modifier.fillMaxWidth())
+                            .align(if (isLandscape) Alignment.TopStart else Alignment.BottomCenter)
+                            .then(
+                                if (isLandscape) {
+                                    // No extra start-padding here: this Box already has the same 16dp
+                                    // padding + systemBarsPadding() the banner's own modifier applies,
+                                    // so both cards' left edges land at the identical x with zero extra
+                                    // offset needed — only the top position differs, and that now
+                                    // tracks the banner instead of the screen edge.
+                                    Modifier.width(navWidth).padding(top = bannerBottomDp + 12.dp)
+                                } else {
+                                    Modifier.fillMaxWidth()
+                                },
+                            )
                             .onGloballyPositioned { navBarHeightPx = it.size.height },
                     )
                 }
