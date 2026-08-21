@@ -82,6 +82,18 @@ internal fun NavigationSettingsScreen(vm: MapViewModel, onBack: () -> Unit) {
             },
             hint = stringResource(R.string.settings_traffic_lights_hint),
         )
+
+        var conciseVoice by remember { mutableStateOf(prefs.getBoolean("nav_concise_voice", false)) }
+        GroupDivider()
+        ToggleRow(
+            label = stringResource(R.string.settings_concise_voice),
+            checked = conciseVoice,
+            onCheckedChange = {
+                conciseVoice = it
+                prefs.edit().putBoolean("nav_concise_voice", it).apply()
+            },
+            hint = stringResource(R.string.settings_concise_voice_hint),
+        )
         }
 
         SettingsGroup {

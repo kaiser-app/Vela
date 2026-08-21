@@ -721,6 +721,8 @@
     <string name="settings_theme_amoled">AMOLED black</string>
     <string name="settings_traffic_lights">Traffic sign &amp; light alerts</string>
     <string name="settings_traffic_lights_hint">Spoken heads-up as you approach a stop sign, traffic light, level crossing, or crosswalk (from OpenStreetMap data — coverage depends on how well your area is mapped). Works in any supported language. On by default.</string>
+    <string name="settings_concise_voice">Concise spoken directions</string>
+    <string name="settings_concise_voice_hint">Skips the early \"in 400 m\" heads-up for each turn, keeping only the closer prompt and the \"turn now\" cue. Fewer prompts in a dense city grid where turns come quickly; on the open road you\'ll hear the change less, since that early prompt already only fires close to the same distance there. Off by default.</string>
     <string name="settings_softkeys" translatable="false">Hardware softkeys</string>
     <string name="settings_softkeys_hint" translatable="false">Zoom the map with the phone\'s two soft keys. Keypad phones only.</string>
     <string name="settings_softkeys_calibrate" translatable="false">Calibrate soft keys</string>

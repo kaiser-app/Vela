@@ -744,6 +744,8 @@
     <string name="settings_theme_amoled">AMOLED fekete</string>
     <string name="settings_traffic_lights">Jelzőtábla- és lámpa-figyelmeztetés</string>
     <string name="settings_traffic_lights_hint">Hangos figyelmeztetés, amikor stop táblához, közlekedési lámpához, vasúti átjáróhoz vagy zebrához közeledsz (OpenStreetMap-adatból — a lefedettség attól függ, mennyire van feltérképezve a környéked). Minden támogatott nyelven működik. Alapból bekapcsolva.</string>
+    <string name="settings_concise_voice">Tömör hangos útvonalvezetés</string>
+    <string name="settings_concise_voice_hint">Kihagyja a korai, „400 méter múlva” jellegű figyelmeztetést minden kanyarnál, csak a közelebbi jelzést és a „most fordulj” bemondást hagyja meg. Kevesebb bemondás egy sűrű városi hálózatban, ahol gyorsan jönnek a kanyarok; nyílt úton kevésbé fogod érezni a különbséget, mert ott a korai jelzés amúgy is csak hasonló távolságra szólal meg. Alapból kikapcsolva.</string>
 
     <!-- D-pad / softkey strings -->
     <string name="settings_softkeys">Hardveres funkciógombok</string>

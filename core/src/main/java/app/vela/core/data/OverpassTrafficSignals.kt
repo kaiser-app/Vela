@@ -125,8 +125,11 @@ object OverpassTrafficSignals {
 
     /** Thin [polyline] to at most [maxPts] points, keeping first + last, by uniform index stride —
      *  route polylines are already distance-dense, so an index stride approximates a distance stride
-     *  without walking haversines over thousands of vertices. */
-    private fun sampleForCorridor(polyline: List<LatLng>, maxPts: Int): List<LatLng> {
+     *  without walking haversines over thousands of vertices. Not private: [TrafficControlStore]
+     *  reuses this (with a smaller maxPts) to pick the same grid cells for its coverage check that
+     *  this function would query live, so "do we already have this corridor cached" and "what did we
+     *  actually ask Overpass for" stay consistent. */
+    fun sampleForCorridor(polyline: List<LatLng>, maxPts: Int): List<LatLng> {
         if (polyline.size <= maxPts) return polyline
         val stride = (polyline.size - 1).toDouble() / (maxPts - 1)
         return (0 until maxPts).map { polyline[Math.round(it * stride).toInt().coerceAtMost(polyline.size - 1)] }

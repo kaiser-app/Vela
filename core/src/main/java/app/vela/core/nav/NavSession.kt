@@ -293,6 +293,12 @@ class NavSession @Inject constructor(
         alertEngine.alertsEnabled = enabled
     }
 
+    /** Mirrors the "Concise spoken directions" setting — skips the far-band ("in 400m") prompt,
+     *  keeping only the near-band and turn-now cues. See NavEngine.update's conciseVoice param. */
+    var conciseVoice: Boolean = false
+        private set
+    fun setConciseVoice(enabled: Boolean) { conciseVoice = enabled }
+
     fun onLocation(loc: LatLng, imperial: Boolean = false, speedMps: Double? = null, accuracyM: Double? = null, bearingDeg: Double? = null) {
         val s = _state.value
         val route = s.route ?: return
@@ -331,7 +337,7 @@ class NavSession @Inject constructor(
         // tighter than driving because the path is narrow. See NavEngine.offRouteCorridor.
         val offRoute = NavEngine.offRouteCorridor(mode, accuracyM)
         val farOff = NavEngine.farOffDistance(mode, offRoute)
-        val (next, events) = NavEngine.update(route, nav, loc, imperial, speedMps, movingFloor, offRoute, farOff, bearingDeg)
+        val (next, events) = NavEngine.update(route, nav, loc, imperial, speedMps, movingFloor, offRoute, farOff, bearingDeg, conciseVoice)
         val maneuver = route.maneuvers.getOrNull(next.stepIndex)
         // Guard the write on route IDENTITY: a reroute/faster-route can swap route+NavState while
         // this update was computing on the OLD route — writing `next` (old-route traveledM /

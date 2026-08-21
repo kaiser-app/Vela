@@ -146,6 +146,14 @@ object NavEngine {
         // distance-first, but distance alone can't catch a wrong turn onto a road that runs within
         // the corridor of the planned one - the heading term ([HEADING_OFF_DEG]) does.
         bearingDeg: Double? = null,
+        // Skips the FAR band (index 0, ~400 m / ~35 s out) entirely, keeping only the NEAR band and
+        // the turn-now cue. Added 2026-08-21 after a dense-city report ("túl sűrűn mondja a
+        // szöveget"): in a tight grid where turns are 150-300 m apart, the far prompt for the NEXT
+        // turn can start almost immediately after the near/turn-now prompt for the PREVIOUS one —
+        // by design (the speed-scaled floors exist for exactly this density), but some drivers find
+        // three prompts per turn excessive in town. Indices stay stable either way (bands is always
+        // [farM, nearM]) so the arrival/merge slot==1 checks below don't need to change.
+        conciseVoice: Boolean = false,
     ): Pair<NavState, List<NavEvent>> {
         val events = mutableListOf<NavEvent>()
         val maneuvers = route.maneuvers
@@ -372,6 +380,8 @@ object NavEngine {
             val bands = listOf(farM, nearM)
             val due = bands.withIndex().filter { (slot, d) ->
                 dtn <= d && slot !in spoken &&
+                    // Concise voice: skip the far band entirely, only the near band remains due.
+                    (!conciseVoice || slot != 0) &&
                     // Arrival gets ONE approach cue at the near band ("your destination will be
                     // ahead") — it used to be excluded entirely: silence from the last turn until
                     // "You have arrived". Skip it when we're already at the arrival line.

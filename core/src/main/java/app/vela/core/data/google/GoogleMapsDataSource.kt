@@ -455,6 +455,7 @@ class GoogleMapsDataSource @Inject constructor(
         avoidHighways: Boolean,
         urgent: Boolean,
     ): List<Route> = io {
+        val directionsStartMs = System.currentTimeMillis()
         // Mid-drive reroutes are URGENT: one shot per source, no divergence snap, no alternates
         // polish. The retry ladders below (3x OSRM + 3x Google with backoff) are right for a
         // planning fetch but can hold a reroute past NavSession's hard deadline on a flaky cell
@@ -487,7 +488,8 @@ class GoogleMapsDataSource @Inject constructor(
                     "directions",
                     "$mode multi-stop ×${waypoints.size} → via=${via != null} onDevice=${onDevice != null} " +
                         "googleDirect=${result.isNotEmpty() && via == null && onDevice == null}" +
-                        if (via == null && onDevice == null) " (STOPS DROPPED if google won)" else "",
+                        (if (via == null && onDevice == null) " (STOPS DROPPED if google won)" else "") +
+                        "; tookMs=${System.currentTimeMillis() - directionsStartMs}",
                     "",
                 )
                 result
@@ -563,7 +565,11 @@ class GoogleMapsDataSource @Inject constructor(
                     "ratio=${gTop?.durationInTrafficSeconds?.let { t -> gTop?.durationSeconds?.takeIf { it > 0 }?.let { String.format(java.util.Locale.US, "%.2f", t / it) } }}); " +
                     "rerouted=${trafficRoute != null} snapKept=$snapWorthIt snapReaches=$snapReaches " +
                     "(gEta=${googleEtaS?.toInt()}s osrmFF=${open.firstOrNull()?.durationSeconds?.toInt()}s); " +
-                    "onDevice=${onDevice.size}",
+                    "onDevice=${onDevice.size}; " +
+                    // TEMP DIAGNOSTIC (perf investigation, 2026-08-21): wall-clock time for this whole
+                    // call, from entry to here — the previous version of this log had success/failure
+                    // counts but no timing, so "slow" couldn't be told apart from "fast but wrong".
+                    "tookMs=${System.currentTimeMillis() - directionsStartMs}",
                 "",
             )
             if (open.isEmpty()) {

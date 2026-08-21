@@ -330,6 +330,7 @@ class MapViewModel @Inject constructor(
     private val shortcutStore: PlaceShortcutStore,
     private val calibration: CalibrationStore,
     private val offlinePoiStore: OfflinePoiStore,
+    private val trafficControlStore: app.vela.core.data.TrafficControlStore,
     private val addressStore: app.vela.core.data.OfflineAddressStore,
     private val webPhotos: WebPhotoFetcher,
     private val webReviews: WebReviewsFetcher,
@@ -5297,15 +5298,46 @@ class MapViewModel @Inject constructor(
         if (key == navControlsKey) return
         navControlsJob?.cancel()
         navControlsJob = viewModelScope.launch {
-            val res = runCatching {
-                withContext(Dispatchers.IO) {
-                    app.vela.core.data.OverpassTrafficSignals.fetchControlsAlongCorridor(http, poly)
+            // "Pre-download" cache (2026-08-21 follow-up to the reliability investigation): a
+            // coarser sample than the live query needs is enough to pick the right cache grid
+            // cells — see TrafficControlStore for why coverage is tracked separately from the
+            // controls themselves (an empty area is a valid cached answer, not "never checked").
+            val sampled = withContext(Dispatchers.Default) {
+                app.vela.core.data.OverpassTrafficSignals.sampleForCorridor(poly, 40)
+            }
+            val cacheMaxAgeMs = TimeUnit.DAYS.toMillis(30)
+            val cacheRadiusM = 150.0
+
+            val cachedFirst = withContext(Dispatchers.IO) {
+                if (trafficControlStore.hasFreshCoverage(sampled, cacheMaxAgeMs)) {
+                    trafficControlStore.near(sampled, cacheRadiusM)
+                } else null
+            }
+            val res = if (cachedFirst != null) {
+                android.util.Log.i("VelaControls", "route corridor served from cache: ${cachedFirst.size} controls, no network call")
+                cachedFirst
+            } else {
+                val live = runCatching {
+                    withContext(Dispatchers.IO) {
+                        app.vela.core.data.OverpassTrafficSignals.fetchControlsAlongCorridor(http, poly)
+                    }
+                }.getOrNull()
+                if (live != null) {
+                    withContext(Dispatchers.IO) { trafficControlStore.cacheResult(sampled, live) }
+                    live
+                } else {
+                    // Live fetch failed outright (all Overpass mirrors, all retries) — fall back to
+                    // whatever's cached nearby, even if stale or only partial coverage. Better than
+                    // silence; this is exactly the case the user's own diagnostics showed happening
+                    // regularly (5 of 9 real-world attempts failed).
+                    val fallback = withContext(Dispatchers.IO) { trafficControlStore.near(sampled, cacheRadiusM) }
+                    android.util.Log.i(
+                        "VelaControls",
+                        "route corridor fetch FAILED (all endpoints) — falling back to ${fallback.size} cached control(s)",
+                    )
+                    if (fallback.isEmpty()) return@launch
+                    fallback
                 }
-            }.getOrNull() ?: run {
-                // Key stays unset → the viewport-box path keeps serving as the fallback (fetch-fail
-                // honesty, same contract as the box fetch: never cache a failure as "no controls").
-                android.util.Log.i("VelaControls", "route corridor fetch FAILED (all endpoints)")
-                return@launch
             }
             val merged = withContext(Dispatchers.Default) {
                 res.groupBy { it.kind }.flatMap { (kind, group) ->
@@ -5329,6 +5361,7 @@ class MapViewModel @Inject constructor(
             // pref was write-only — see NavigationSettings.kt / settings_traffic_lights_hint fix).
             val alertPrefs = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
             navSession?.setTrafficAlertsEnabled(alertPrefs.getBoolean("nav_traffic_lights", true))
+            navSession?.setConciseVoice(alertPrefs.getBoolean("nav_concise_voice", false))
         }
     }
 
