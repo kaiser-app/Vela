@@ -76,6 +76,8 @@ import app.vela.ui.formatArrivalClock
 import kotlinx.coroutines.launch
 import app.vela.ui.formatDistance
 import app.vela.ui.formatDuration
+import app.vela.ui.formatSpeed
+import app.vela.ui.formatSpeedLimit
 import app.vela.ui.theme.isAppInDarkTheme
 // D-pad-only operation (docs/dpad.md) — one import block so upstream merges stay clean.
 import androidx.compose.foundation.focusable
@@ -689,7 +691,12 @@ fun NavSearchChips(
     }
 }
 
-/** Bottom bar during navigation: remaining time/distance + an End button. */
+/** Bottom bar during navigation: remaining time/distance + an End button. In landscape it also
+ *  folds in the live speed readout (see [speedMps]) — previously a SEPARATELY floating
+ *  SpeedWidget shared the same bottom-left corner and could visually overlap this card or the
+ *  ManeuverBanner above it depending on screen height (user-reported 2026-08-21: the "72 km/h"
+ *  badge landing on top of the maneuver card). One card, one measured height, no cross-component
+ *  clearance math to get wrong. */
 @Composable
 fun NavControls(
     remainingDistanceMeters: Double,
@@ -698,6 +705,9 @@ fun NavControls(
     onStop: () -> Unit,
     onSteps: () -> Unit,
     trafficRatio: Double? = null,
+    speedMps: Float? = null,
+    speedLimitKmh: Double? = null,
+    imperial: Boolean = false,
     modifier: Modifier = Modifier,
 ) {
     val dark = isAppInDarkTheme()
@@ -713,7 +723,8 @@ fun NavControls(
         else -> SheetPalette.TrafficGreen
     }
     Card(
-        modifier.then(if (isLandscape) Modifier.widthIn(max = 400.dp) else Modifier.fillMaxWidth()),
+        // Narrower than before (400dp -> 320dp max) per user feedback ("lehetne még keskenyebb").
+        modifier.then(if (isLandscape) Modifier.widthIn(max = 320.dp) else Modifier.fillMaxWidth()),
         // Match the banner's treatment: generous radius + shadow, a floating pill not a bar.
         shape = RoundedCornerShape(28.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
@@ -722,6 +733,26 @@ fun NavControls(
             contentColor = SheetPalette.ink(dark),
         ),
     ) {
+        if (isLandscape && speedMps != null) {
+            val (value, unit) = formatSpeed(speedMps)
+            Row(
+                Modifier.fillMaxWidth().padding(top = 14.dp, start = 18.dp, end = 18.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(value.toString(), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+                Spacer(Modifier.width(4.dp))
+                Text(unit, style = MaterialTheme.typography.labelMedium, color = SheetPalette.dim(dark))
+                speedLimitKmh?.let { limit ->
+                    Spacer(Modifier.weight(1f))
+                    Text(
+                        formatSpeedLimit(limit).first.toString(),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = SheetPalette.dim(dark),
+                    )
+                }
+            }
+            androidx.compose.material3.HorizontalDivider(Modifier.padding(top = 10.dp, start = 18.dp, end = 18.dp))
+        }
         val content = @Composable {
             // BUG (2026-08-20, user-reported "huge empty black area in landscape"): this used to be
             // Column(Modifier.weight(1f)). `weight()` here resolves against CARD's own ColumnScope

@@ -45,12 +45,20 @@ object OverpassEndpoints {
                 http.newCall(req).execute().use { resp ->
                     val body = resp.body
                     if (resp.isSuccessful && body != null) return onBody(body)
-                    // non-2xx or no body: fall through to the next endpoint
+                    // TEMP DEBUG (traffic-control chain investigation, 2026-08-20): field diagnostics
+                    // (vela-diag export) showed "camera fetch failed" / "showing 0" repeatedly on a
+                    // real device, with no way to tell WHY — this line was previously a silent
+                    // fall-through. Logging the actual status code here is what tells us whether a
+                    // mirror is rate-limiting (429), erroring (5xx), or something else entirely.
+                    android.util.Log.w("VelaOverpass", "non-2xx from $ep: HTTP ${resp.code}")
                 }
             } catch (e: Exception) {
-                // network / timeout / parse error on this endpoint - try the next one
+                // TEMP DEBUG: network/timeout/parse error on this endpoint — previously silently
+                // swallowed. This is the line that actually explains a "fetch failed" event.
+                android.util.Log.w("VelaOverpass", "exception from $ep: ${e.javaClass.simpleName}: ${e.message}")
             }
         }
+        android.util.Log.e("VelaOverpass", "ALL ${ENDPOINTS.size} endpoints failed for query (first 80 chars): ${query.take(80)}")
         return null
     }
 }

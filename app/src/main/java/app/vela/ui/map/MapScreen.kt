@@ -155,6 +155,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -1256,7 +1257,7 @@ fun MapScreen(
             fun navRomanize(s: String): String =
                 if (s.isEmpty() || state.roadNameLatin.isEmpty()) s
                 else app.vela.core.voice.SpokenScript.forDisplay(s, navUiLang, state.roadNameLatin)
-            val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(280.dp, 400.dp) else androidx.compose.ui.unit.Dp.Unspecified
+            val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(260.dp, 320.dp) else androidx.compose.ui.unit.Dp.Unspecified
             ManeuverBanner(
                 offRoute = state.nav.offRoute,
                 text = navRomanize(if (previewing) (shown?.instruction.orEmpty()) else state.maneuverText),
@@ -1297,7 +1298,12 @@ fun MapScreen(
                 onExitPreview = vm::clearPreview,
                 modifier = Modifier
                     .align(if (isLandscape) Alignment.TopStart else Alignment.TopCenter)
-                    .statusBarsPadding()
+                    // Was statusBarsPadding() — NavControls below uses navigationBarsPadding(), and on
+                    // devices where the two bars carry different horizontal insets in landscape (some
+                    // gesture-nav phones reserve a side strip), that mismatch was the actual cause of
+                    // the two cards' left edges not lining up (user-reported 2026-08-21). systemBars
+                    // Padding() on both sides makes the horizontal inset identical either way.
+                    .systemBarsPadding()
                     .then(if (isLandscape) Modifier.width(navWidth).padding(start = 16.dp, top = 16.dp) else Modifier.fillMaxWidth().padding(12.dp))
                     // Report the banner's bottom edge so the compass can drop just below it (any height).
                     .onGloballyPositioned { navBannerBottomPx = (it.positionInRoot().y + it.size.height).roundToInt() },
@@ -1703,7 +1709,12 @@ else if (state.pickOnMap == null && state.transitNav == null) {
         val movingFree = !state.navigating && (state.mySpeed ?: 0f) > 3f &&
             !searchOpen && state.selected == null && !state.directionsOpen && !state.showSteps && !resultsShown
         val postedLimitKmh = state.speedLimitKmh ?: state.speedLimitOverlayKmh
-        if ((state.navigating && state.mySpeed != null) || movingFree) {
+        // Landscape-during-nav no longer shows this separately — NavControls folds the speed
+        // readout into its own card now (see the NavControls call above), which is what fixed the
+        // "72 km/h badge overlapping the maneuver banner" report (2026-08-21). Free-driving
+        // (no active nav) and portrait nav both keep the original floating widget.
+        val showFloatingSpeedWidget = movingFree || (state.navigating && !isLandscape)
+        if (state.mySpeed != null && showFloatingSpeedWidget) {
             SpeedWidget(
                 speedMps = state.mySpeed,
                 limitKmh = postedLimitKmh,
@@ -1807,11 +1818,13 @@ else if (state.pickOnMap == null && state.transitNav == null) {
 
             // slot (Google's in-nav list does the same); clearing it brings the bar back.
             state.navigating && state.results.isEmpty() -> {
-                val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(280.dp, 400.dp) else androidx.compose.ui.unit.Dp.Unspecified
+                val navWidth = if (isLandscape) (LocalConfiguration.current.screenWidthDp * 0.33f).dp.coerceIn(260.dp, 320.dp) else androidx.compose.ui.unit.Dp.Unspecified
                 Box(
                     Modifier
                         .fillMaxSize()
-                        .navigationBarsPadding()
+                        // Was navigationBarsPadding() — see the ManeuverBanner modifier above for why
+                        // this needed to match its systemBarsPadding() exactly.
+                        .systemBarsPadding()
                         .padding(if (isLandscape) 16.dp else 0.dp)
                 ) {
                     NavControls(
@@ -1821,6 +1834,12 @@ else if (state.pickOnMap == null && state.transitNav == null) {
                         onStop = vm::stopNav,
                         onSteps = vm::openSteps,
                         trafficRatio = state.activeRoute?.trafficRatio,
+                        // Landscape folds the speed readout into this card instead of a separately
+                        // floating SpeedWidget (see the SpeedWidget call site below, which is now
+                        // portrait-only) — see NavOverlays.kt for why that overlap happened.
+                        speedMps = if (isLandscape) state.mySpeed else null,
+                        speedLimitKmh = if (isLandscape) (state.speedLimitKmh ?: state.speedLimitOverlayKmh) else null,
+                        imperial = Units.imperial.value,
                         // Measured AFTER the padding → the bar surface itself; navBarClearance adds the
                         // padding + gap back. Everything stacked above the bar keys off this.
                         modifier = Modifier
