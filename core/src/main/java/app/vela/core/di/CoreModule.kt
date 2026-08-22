@@ -80,7 +80,8 @@ object CoreModule {
 
     @Provides
     @Singleton
-    fun aiService(gemini: GeminiAiService): AiService = gemini
+    fun aiService(gemini: GeminiAiService, openRouter: app.vela.core.data.ai.OpenRouterAiService): AiService =
+        app.vela.core.data.ai.ChainedAiService(gemini, openRouter)
 }
 
 /**

@@ -68,7 +68,7 @@ internal fun DataPrivacySettingsScreen(vm: app.vela.ui.map.MapViewModel, onBack:
                     .getString("gemini_api_key", "") ?: ""
             )
         }
-        PageIntro("Vela AI")
+        PageIntro("NA-VIGATOR AI")
         SettingsGroup {
             androidx.compose.material3.OutlinedTextField(
                 value = aiKey,
@@ -86,6 +86,40 @@ internal fun DataPrivacySettingsScreen(vm: app.vela.ui.map.MapViewModel, onBack:
         androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = 16.dp)) {
             Text(
                 "A Gemini API kulcsot a Google AI Studio-ban igényelhetsz ingyenesen. Az AI segít megválaszolni a helyszínekkel kapcsolatos kérdéseidet.",
+                style = MaterialTheme.typography.bodySmall,
+                color = if (app.vela.ui.theme.isAppInDarkTheme()) app.vela.ui.SheetPalette.DimDark else app.vela.ui.SheetPalette.DimLight
+            )
+        }
+        Spacer(Modifier.height(16.dp))
+
+        // Fallback provider (2026-08-21, "az AI bekötés eléggé korlátoz"): Gemini's free tier is
+        // very tight (as low as 5 requests/day on some models). OpenRouter — optional — is tried
+        // automatically if Gemini fails or isn't configured. Same chain-of-fallback shape as the
+        // HERE/TomTom traffic overlay: nothing here breaks if this field is left empty, it just
+        // means there's no second provider to fall back to.
+        var openRouterKey by androidx.compose.runtime.remember {
+            androidx.compose.runtime.mutableStateOf(
+                context.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+                    .getString("openrouter_api_key", "") ?: ""
+            )
+        }
+        SettingsGroup {
+            androidx.compose.material3.OutlinedTextField(
+                value = openRouterKey,
+                onValueChange = {
+                    openRouterKey = it
+                    context.getSharedPreferences("vela_settings", android.content.Context.MODE_PRIVATE)
+                        .edit().putString("openrouter_api_key", it).apply()
+                },
+                label = { Text("OpenRouter API kulcs (tartalék)") },
+                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                singleLine = true,
+                visualTransformation = androidx.compose.ui.text.input.PasswordVisualTransformation(),
+            )
+        }
+        androidx.compose.foundation.layout.Box(Modifier.padding(horizontal = 16.dp)) {
+            Text(
+                "Opcionális. Ha a Gemini elfogyott vagy nem elérhető, a NA-VIGATOR automatikusan az OpenRouter ingyenes modelljére vált át — nincs teendőd, csak add meg a kulcsot. Kulcsot az openrouter.ai oldalon igényelhetsz.",
                 style = MaterialTheme.typography.bodySmall,
                 color = if (app.vela.ui.theme.isAppInDarkTheme()) app.vela.ui.SheetPalette.DimDark else app.vela.ui.SheetPalette.DimLight
             )

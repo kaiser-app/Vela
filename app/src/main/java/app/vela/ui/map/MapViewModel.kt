@@ -5876,8 +5876,12 @@ class MapViewModel @Inject constructor(
         val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
             .getString("gemini_api_key", "") ?: ""
 
-        if (aiService is app.vela.core.data.ai.GeminiAiService) {
-            aiService.setApiKey(apiKey)
+        if (aiService is app.vela.core.data.ai.ChainedAiService) {
+            aiService.setGeminiApiKey(apiKey)
+            aiService.setOpenRouterApiKey(
+                appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
+                    .getString("openrouter_api_key", "") ?: ""
+            )
         }
 
         val now = java.text.SimpleDateFormat("HH:mm, yyyy.MM.dd", java.util.Locale.getDefault()).format(java.util.Date())
@@ -5922,8 +5926,12 @@ class MapViewModel @Inject constructor(
         val apiKey = appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
             .getString("gemini_api_key", "") ?: ""
 
-        if (aiService is app.vela.core.data.ai.GeminiAiService) {
-            aiService.setApiKey(apiKey)
+        if (aiService is app.vela.core.data.ai.ChainedAiService) {
+            aiService.setGeminiApiKey(apiKey)
+            aiService.setOpenRouterApiKey(
+                appContext.getSharedPreferences("vela_settings", Context.MODE_PRIVATE)
+                    .getString("openrouter_api_key", "") ?: ""
+            )
         }
 
         _state.update { it.copy(aiLoading = true, aiResponse = "") }

@@ -19,6 +19,8 @@ class GeminiAiService @Inject constructor() : AiService {
         apiKey = key
     }
 
+    fun hasApiKey(): Boolean = apiKey.isNotBlank()
+
     private fun getModel(systemInstruction: String): GenerativeModel {
         return GenerativeModel(
             modelName = "gemini-flash-latest",
@@ -37,66 +39,69 @@ class GeminiAiService @Inject constructor() : AiService {
         time: String?
     ): Flow<String> = flow {
         if (apiKey.isBlank()) {
-            emit("Hiba: Gemini API kulcs nincs beállítva a Beállításokban.")
-            return@flow
+            throw AiServiceException("Gemini API kulcs nincs beállítva")
         }
 
         val context = buildAiContext(currentLoc, currentAddress, destination, eta, place, time)
-        val model = getModel("Te egy segítőkész navigációs asszisztens vagy a Vela térkép alkalmazásban. " +
+        val model = getModel(
+            "Te egy segítőkész navigációs asszisztens vagy a NA-VIGATOR térkép alkalmazásban. " +
                 "A válaszaid legyenek lényegretörőek, barátságosak és magyar nyelvűek. " +
-                "Ismered a felhasználó helyzetét, úti célját és az aktuális időt.")
+                "Ismered a felhasználó helyzetét, úti célját és az aktuális időt."
+        )
 
         var attempts = 0
-        val maxAttempts = 5
+        val maxAttempts = 3 // was 5 — see ChainedAiService: a fast-failing Gemini gets to
+        // OpenRouter sooner. 3 attempts (1s/2s/3s backoff) still absorbs a transient 503 without
+        // making the user wait ~15s (5 attempts' worth) before the fallback even starts.
         var lastException: Exception? = null
 
         while (attempts < maxAttempts) {
             try {
-                val response = model.generateContentStream(content {
-                    text("Környezeti információk:\n$context\n\nKérdés: $question")
-                })
-
+                val response = model.generateContentStream(
+                    content { text("Környezeti információk:\n$context\n\nKérdés: $question") }
+                )
                 response.map { it.text ?: "" }.collect { emit(it) }
-                return@flow // Success!
+                return@flow // success
             } catch (e: Exception) {
                 attempts++
                 lastException = e
                 val msg = e.localizedMessage ?: ""
-                
-                // Only retry on 503 or potentially transient network errors
                 if (attempts < maxAttempts && (msg.contains("503") || msg.contains("Unavailable") || msg.contains("Deadline"))) {
-                    kotlinx.coroutines.delay(1000L * attempts) // Wait 1s, 2s, 3s...
+                    kotlinx.coroutines.delay(1000L * attempts)
                     continue
                 } else {
-                    break // Non-retryable error or ran out of attempts
+                    break
                 }
             }
         }
 
-        val finalMsg = lastException?.localizedMessage ?: "Ismeretlen hiba"
-        emit("AI Hiba (5 próbálkozás után): $finalMsg")
+        throw AiServiceException("Gemini hiba ($attempts próbálkozás után): ${lastException?.localizedMessage}", lastException)
     }
 
     override fun summarizePlace(place: Place): Flow<String> = flow {
         if (apiKey.isBlank()) {
-            emit("Hiba: Gemini API kulcs nincs beállítva.")
-            return@flow
+            throw AiServiceException("Gemini API kulcs nincs beállítva")
         }
 
-        val model = getModel("Te egy helyszín-összefoglaló asszisztens vagy. " +
-                "Készíts egy rövid, 2-3 mondatos összefoglalót a helyről a megadott adatok és vélemények alapján magyarul.")
+        val model = getModel(
+            "Te egy helyszín-összefoglaló asszisztens vagy. " +
+                "Készíts egy rövid, 2-3 mondatos összefoglalót a helyről a megadott adatok és vélemények alapján magyarul."
+        )
 
         var attempts = 0
-        val maxAttempts = 5
+        val maxAttempts = 3
         var lastException: Exception? = null
 
         while (attempts < maxAttempts) {
             try {
-                val response = model.generateContentStream(content {
-                    text("Foglald össze ezt a helyet: ${place.name}, ${place.category}, ${place.address}. " +
-                            "Értékelés: ${place.rating}. Vélemény: ${place.featuredReview ?: "nincs"}")
-                })
-
+                val response = model.generateContentStream(
+                    content {
+                        text(
+                            "Foglald össze ezt a helyet: ${place.name}, ${place.category}, ${place.address}. " +
+                                "Értékelés: ${place.rating}. Vélemény: ${place.featuredReview ?: "nincs"}"
+                        )
+                    }
+                )
                 response.map { it.text ?: "" }.collect { emit(it) }
                 return@flow
             } catch (e: Exception) {
@@ -110,7 +115,7 @@ class GeminiAiService @Inject constructor() : AiService {
             }
         }
 
-        emit("AI Hiba: ${lastException?.localizedMessage}")
+        throw AiServiceException("Gemini hiba: ${lastException?.localizedMessage}", lastException)
     }
 
     private fun buildAiContext(
