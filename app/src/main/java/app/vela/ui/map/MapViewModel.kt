@@ -5305,7 +5305,7 @@ class MapViewModel @Inject constructor(
             val sampled = withContext(Dispatchers.Default) {
                 app.vela.core.data.OverpassTrafficSignals.sampleForCorridor(poly, 40)
             }
-            val cacheMaxAgeMs = TimeUnit.DAYS.toMillis(30)
+            val cacheMaxAgeMs = java.util.concurrent.TimeUnit.DAYS.toMillis(30)
             val cacheRadiusM = 150.0
 
             val cachedFirst = withContext(Dispatchers.IO) {
